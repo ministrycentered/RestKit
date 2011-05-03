@@ -15,11 +15,14 @@
 #import "../Support/Support.h"
 #import "RKURL.h"
 #import <UIKit/UIKit.h>
+#import "OAuthCore.h"
 
 @implementation RKRequest
 
 @synthesize URL = _URL, URLRequest = _URLRequest, delegate = _delegate, additionalHTTPHeaders = _additionalHTTPHeaders,
-			params = _params, userData = _userData, username = _username, password = _password, method = _method;
+			params = _params, userData = _userData, username = _username, password = _password, method = _method,
+            oAuthConsumerKey = _oAuthConsumerKey, oAuthConsumerSecret = _oAuthConsumerSecret, 
+            oAuthToken = _oAuthToken, oAuthTokenSecret = _oAuthTokenSecret;
 
 + (RKRequest*)requestWithURL:(NSURL*)URL delegate:(id)delegate {
 	return [[[RKRequest alloc] initWithURL:URL delegate:delegate] autorelease];
@@ -64,6 +67,14 @@
 	_username = nil;
 	[_password release];
 	_password = nil;
+    [_oAuthConsumerKey release];
+    _oAuthConsumerKey = nil;
+    [_oAuthConsumerSecret release];
+    _oAuthConsumerSecret = nil;
+    [_oAuthToken release];
+    _oAuthToken = nil;
+    [_oAuthTokenSecret release];
+    _oAuthTokenSecret = nil;
 	[super dealloc];
 }
 
@@ -97,10 +108,18 @@
 	}
 }
 
+- (void)addOAuthHeaders {
+    if (_oAuthConsumerKey != nil && _oAuthConsumerSecret != nil && _oAuthToken != nil && _oAuthTokenSecret != nil ) {
+        NSString * oAuthHeader = OAuthorizationHeader(_URL, [self HTTPMethod], [_params HTTPBody], _oAuthConsumerKey, _oAuthConsumerSecret, _oAuthToken,_oAuthTokenSecret);
+        [_URLRequest addValue: oAuthHeader forHTTPHeaderField: @"Authorization"];
+    }
+}
+
 // Setup the NSURLRequest. The request must be prepared right before dispatching
 - (void)prepareURLRequest {
 	[_URLRequest setHTTPMethod:[self HTTPMethod]];
 	[self setRequestBody];
+    [self addOAuthHeaders];
 	[self addHeadersToRequest];
 }
 

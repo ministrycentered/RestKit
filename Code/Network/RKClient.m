@@ -76,6 +76,8 @@ NSString* RKMakePathWithObject(NSString* path, id object) {
 @synthesize serviceUnavailableAlertTitle = _serviceUnavailableAlertTitle;
 @synthesize serviceUnavailableAlertMessage = _serviceUnavailableAlertMessage;
 @synthesize serviceUnavailableAlertEnabled = _serviceUnavailableAlertEnabled;
+@synthesize oAuthConsumerKey = _oAuthConsumerKey, oAuthConsumerSecret = _oAuthConsumerSecret, 
+    oAuthToken = _oAuthToken, oAuthTokenSecret = _oAuthTokenSecret;
 
 + (RKClient*)sharedClient {
 	return sharedClient;
@@ -120,6 +122,10 @@ NSString* RKMakePathWithObject(NSString* path, id object) {
 	self.baseURL = nil;
 	self.username = nil;
 	self.password = nil;
+    self.oAuthConsumerKey = nil;
+    self.oAuthConsumerSecret = nil;
+    self.oAuthToken = nil;
+    self.oAuthTokenSecret = nil;
 	self.serviceUnavailableAlertTitle = nil;
 	self.serviceUnavailableAlertMessage = nil;
 	[_HTTPHeaders release];
@@ -158,6 +164,10 @@ NSString* RKMakePathWithObject(NSString* path, id object) {
 	request.additionalHTTPHeaders = _HTTPHeaders;
 	request.username = self.username;
 	request.password = self.password;
+    request.oAuthConsumerKey = self.oAuthConsumerKey;
+    request.oAuthConsumerSecret = self.oAuthConsumerSecret;
+    request.oAuthToken = self.oAuthToken;
+    request.oAuthTokenSecret = self.oAuthTokenSecret;
 }
 
 - (void)setValue:(NSString*)value forHTTPHeaderField:(NSString*)header {

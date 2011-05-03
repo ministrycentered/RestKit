@@ -31,6 +31,12 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		239D6C0A13709A5A00F092E9 /* NSData+Base64.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D6C0413709A5A00F092E9 /* NSData+Base64.h */; };
+		239D6C0B13709A5A00F092E9 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D6C0513709A5A00F092E9 /* NSData+Base64.m */; };
+		239D6C0C13709A5A00F092E9 /* OAuth+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D6C0613709A5A00F092E9 /* OAuth+Additions.h */; };
+		239D6C0D13709A5A00F092E9 /* OAuth+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D6C0713709A5A00F092E9 /* OAuth+Additions.m */; };
+		239D6C0E13709A5A00F092E9 /* OAuthCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 239D6C0813709A5A00F092E9 /* OAuthCore.h */; };
+		239D6C0F13709A5A00F092E9 /* OAuthCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 239D6C0913709A5A00F092E9 /* OAuthCore.m */; };
 		250C29FD134185D2000A3551 /* RKNetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 250C29FB134185CE000A3551 /* RKNetwork.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		250C29FE134185D2000A3551 /* RKNetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 250C29FC134185D0000A3551 /* RKNetwork.m */; };
 		251D14AC133597B800959061 /* RKManagedObjectLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 251D14AA133597B800959061 /* RKManagedObjectLoader.h */; };
@@ -311,6 +317,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		239D6C0413709A5A00F092E9 /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
+		239D6C0513709A5A00F092E9 /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
+		239D6C0613709A5A00F092E9 /* OAuth+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OAuth+Additions.h"; sourceTree = "<group>"; };
+		239D6C0713709A5A00F092E9 /* OAuth+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "OAuth+Additions.m"; sourceTree = "<group>"; };
+		239D6C0813709A5A00F092E9 /* OAuthCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAuthCore.h; sourceTree = "<group>"; };
+		239D6C0913709A5A00F092E9 /* OAuthCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAuthCore.m; sourceTree = "<group>"; };
 		250C29FB134185CE000A3551 /* RKNetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKNetwork.h; sourceTree = "<group>"; };
 		250C29FC134185D0000A3551 /* RKNetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKNetwork.m; sourceTree = "<group>"; };
 		251D14AA133597B800959061 /* RKManagedObjectLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKManagedObjectLoader.h; sourceTree = "<group>"; };
@@ -743,6 +755,12 @@
 		253A089312551D8D00976E89 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				239D6C0413709A5A00F092E9 /* NSData+Base64.h */,
+				239D6C0513709A5A00F092E9 /* NSData+Base64.m */,
+				239D6C0613709A5A00F092E9 /* OAuth+Additions.h */,
+				239D6C0713709A5A00F092E9 /* OAuth+Additions.m */,
+				239D6C0813709A5A00F092E9 /* OAuthCore.h */,
+				239D6C0913709A5A00F092E9 /* OAuthCore.m */,
 				253A08B41255212300976E89 /* Parsers */,
 				253A089412551D8D00976E89 /* Errors.h */,
 				253A089512551D8D00976E89 /* Errors.m */,
@@ -1086,6 +1104,9 @@
 				73FE56C7126CB91600E0F30B /* RKURL.h in Headers */,
 				2538C05C12A6C44A0006903C /* RKRequestQueue.h in Headers */,
 				250C29FD134185D2000A3551 /* RKNetwork.h in Headers */,
+				239D6C0A13709A5A00F092E9 /* NSData+Base64.h in Headers */,
+				239D6C0C13709A5A00F092E9 /* OAuth+Additions.h in Headers */,
+				239D6C0E13709A5A00F092E9 /* OAuthCore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1549,6 +1570,9 @@
 				73C89EF312A5BB9A000FE600 /* RKReachabilityObserver.m in Sources */,
 				2538C05D12A6C44A0006903C /* RKRequestQueue.m in Sources */,
 				250C29FE134185D2000A3551 /* RKNetwork.m in Sources */,
+				239D6C0B13709A5A00F092E9 /* NSData+Base64.m in Sources */,
+				239D6C0D13709A5A00F092E9 /* OAuth+Additions.m in Sources */,
+				239D6C0F13709A5A00F092E9 /* OAuthCore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

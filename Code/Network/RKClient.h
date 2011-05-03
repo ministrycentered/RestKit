@@ -62,6 +62,10 @@ NSString* RKMakePathWithObject(NSString* path, id object);
 	NSString* _serviceUnavailableAlertTitle;
 	NSString* _serviceUnavailableAlertMessage;
 	BOOL _serviceUnavailableAlertEnabled;
+    NSString *_oAuthConsumerKey; 
+    NSString *_oAuthConsumerSecret;
+    NSString *_oAuthToken;
+    NSString *_oAuthTokenSecret;
 }
 
 /**
@@ -110,6 +114,14 @@ NSString* RKMakePathWithObject(NSString* path, id object);
  * Defaults to NO.
  */
 @property(nonatomic, assign) BOOL serviceUnavailableAlertEnabled;
+
+/**
+ * The OAuth authorization secrets 
+ */
+@property(nonatomic, retain) NSString* oAuthConsumerKey;
+@property(nonatomic, retain) NSString* oAuthConsumerSecret;
+@property(nonatomic, retain) NSString* oAuthToken;
+@property(nonatomic, retain) NSString* oAuthTokenSecret;
 
 /**
  * Return the configured singleton instance of the Rest client

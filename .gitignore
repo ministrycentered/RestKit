@@ -18,3 +18,4 @@ DerivedData
 *.xcuserdatad
 
 Examples/RKDiscussionBoardExample/discussion_board_backend/public/system/attachments/*
+*.svn
