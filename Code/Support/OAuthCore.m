@@ -101,13 +101,11 @@ NSString *OAuthorizationHeader(NSURL *url, NSString *method, NSData *body, NSStr
     else {
         normalizedURLString = [NSString stringWithFormat:@"%@://%@:%@%@", [url scheme], [url host], [url port], URLPathWithTrailingSlash(url)];
     }
-    NSLog(@"normalizedURLString: %@", normalizedURLString);
 	
 	NSString *signatureBaseString = [NSString stringWithFormat:@"%@&%@&%@",
 									 [method ab_RFC3986EncodedString],
 									 [normalizedURLString ab_RFC3986EncodedString],
 									 [normalizedParameterString ab_RFC3986EncodedString]];
-    NSLog(@"SignatureBaseString: %@", signatureBaseString);
 	
 	NSString *key = [NSString stringWithFormat:@"%@&%@",
 					 [_oAuthConsumerSecret ab_RFC3986EncodedString],
