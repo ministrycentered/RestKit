@@ -126,6 +126,10 @@ NSString* RKPathAppendQueryParams(NSString* resourcePath, NSDictionary* queryPar
 	NSString* _serviceUnavailableAlertTitle;
 	NSString* _serviceUnavailableAlertMessage;
 	BOOL _serviceUnavailableAlertEnabled;
+    NSString *_oAuthConsumerKey; 
+    NSString *_oAuthConsumerSecret;
+    NSString *_oAuthToken;
+    NSString *_oAuthTokenSecret;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -219,7 +223,15 @@ NSString* RKPathAppendQueryParams(NSString* resourcePath, NSDictionary* queryPar
 /////////////////////////////////////////////////////////////////////////
 
 /**
- * Return the configured singleton instance of the client
+ * The OAuth authorization secrets 
+ */
+@property(nonatomic, retain) NSString* oAuthConsumerKey;
+@property(nonatomic, retain) NSString* oAuthConsumerSecret;
+@property(nonatomic, retain) NSString* oAuthToken;
+@property(nonatomic, retain) NSString* oAuthTokenSecret;
+
+/**
+ * Return the configured singleton instance of the Rest client
  */
 + (RKClient*)sharedClient;
 

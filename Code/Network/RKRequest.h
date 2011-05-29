@@ -55,12 +55,18 @@ typedef enum RKRequestBackgroundPolicy {
 	RKRequestMethod _method;
 	BOOL _isLoading;
 	BOOL _isLoaded;
+
     BOOL _sentSynchronously;
     RKRequestBackgroundPolicy _backgroundPolicy;
     
     #if TARGET_OS_IPHONE
     UIBackgroundTaskIdentifier _backgroundTaskIdentifier;
     #endif
+
+    NSString *_oAuthConsumerKey; 
+    NSString *_oAuthConsumerSecret;
+    NSString *_oAuthToken;
+    NSString *_oAuthTokenSecret;
 }
 
 /**
@@ -131,6 +137,15 @@ typedef enum RKRequestBackgroundPolicy {
  * The HTTP method as a string used for this request
  */
 @property(nonatomic, readonly) NSString* HTTPMethod;
+
+/**
+ * The OAuth authorization secrets 
+ */
+@property(nonatomic, retain) NSString* oAuthConsumerKey;
+@property(nonatomic, retain) NSString* oAuthConsumerSecret;
+@property(nonatomic, retain) NSString* oAuthToken;
+@property(nonatomic, retain) NSString* oAuthTokenSecret;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
