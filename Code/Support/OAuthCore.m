@@ -27,26 +27,6 @@ static NSData *HMAC_SHA1(NSString *data, NSString *key) {
 	return [NSData dataWithBytes:buf length:CC_SHA1_DIGEST_LENGTH];
 }
 
-static int DefaultPortForScheme(NSString *scheme) {
-    if ([@"http" isEqualToString: scheme] == YES) {
-        return 80;
-    }
-    else if ([@"https" isEqualToString: scheme] == YES) {
-        return 443;
-    }
-    else {
-        return 0;
-    }
-}
-
-static NSString * URLPathWithTrailingSlash(NSURL *url) {
-    NSString * path = [url absoluteString];
-    NSArray * components = [path componentsSeparatedByString: @"?"];
-    path = (NSString *)[components objectAtIndex: 0];
-    path = [path substringFromIndex: [path rangeOfString: [url path]].location];
-    return path;
-}
-
 NSString *OAuthorizationHeader(NSURL *url, NSString *method, NSData *body, NSString *_oAuthConsumerKey, NSString *_oAuthConsumerSecret, NSString *_oAuthToken, NSString *_oAuthTokenSecret)
 {
 	NSString *_oAuthNonce = [NSString ab_GUID];
@@ -93,14 +73,7 @@ NSString *OAuthorizationHeader(NSURL *url, NSString *method, NSData *body, NSStr
 	}
 	NSString *normalizedParameterString = [parameterArray componentsJoinedByString:@"&"];
 	
-    // make sure we handle the port correctly - if the port is the default for the scheme, we should use it, otherwise don't
-	NSString *normalizedURLString = nil;
-    if ( [[url port] intValue] == DefaultPortForScheme([url scheme]) ) {
-        normalizedURLString = [NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host], URLPathWithTrailingSlash(url)];
-    }
-    else {
-        normalizedURLString = [NSString stringWithFormat:@"%@://%@:%@%@", [url scheme], [url host], [url port], URLPathWithTrailingSlash(url)];
-    }
+	NSString *normalizedURLString = [NSString stringWithFormat:@"%@://%@%@", [url scheme], [url host], [url path]];
 	
 	NSString *signatureBaseString = [NSString stringWithFormat:@"%@&%@&%@",
 									 [method ab_RFC3986EncodedString],
@@ -130,4 +103,3 @@ NSString *OAuthorizationHeader(NSURL *url, NSString *method, NSData *body, NSStr
 	
 	return authorizationHeaderString;
 }
-
