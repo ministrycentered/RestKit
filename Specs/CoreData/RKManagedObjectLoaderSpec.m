@@ -33,7 +33,7 @@
 
 @implementation RKManagedObjectLoaderSpec
 
-- (void)itShouldDeleteObjectFromLocalStoreOnDELETE {    
+- (void)testShouldDeleteObjectFromLocalStoreOnDELETE {    
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     RKSpecStubNetworkAvailability(YES);
@@ -54,7 +54,7 @@
     assertThatBool([human isDeleted], equalToBool(YES));
 }
 
-- (void)itShouldLoadAnObjectWithAToOneRelationship {
+- (void)testShouldLoadAnObjectWithAToOneRelationship {
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     RKSpecStubNetworkAvailability(YES);
@@ -76,7 +76,7 @@
     assertThat(human.favoriteCat.name, is(equalTo(@"Asia")));
 }
 
-- (void)itShouldDeleteObjectsMissingFromPayloadReturnedByObjectCache {
+- (void)testShouldDeleteObjectsMissingFromPayloadReturnedByObjectCache {
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
     RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
     [humanMapping mapKeyPath:@"id" toAttribute:@"railsID"];
@@ -85,7 +85,7 @@
     
     // Create 3 objects, we will expect 2 after the load
     [RKHuman truncateAll];    
-    assertThatInt([RKHuman count:nil], is(equalToInt(0)));
+    assertThatUnsignedInteger([RKHuman count:nil], is(equalToInt(0)));
     RKHuman* blake = [RKHuman createEntity];
     blake.railsID = [NSNumber numberWithInt:123];
     RKHuman* other = [RKHuman createEntity];
@@ -93,7 +93,7 @@
     RKHuman* deleteMe = [RKHuman createEntity];
     deleteMe.railsID = [NSNumber numberWithInt:9999];
     [store save];
-    assertThatInt([RKHuman count:nil], is(equalToInt(3)));
+    assertThatUnsignedInteger([RKHuman count:nil], is(equalToInt(3)));
         
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     [objectManager.mappingProvider setMapping:humanMapping forKeyPath:@"human"];
@@ -111,7 +111,7 @@
     [objectLoader send];
     [responseLoader waitForResponse];
     
-    assertThatInt([RKHuman count:nil], is(equalToInt(2)));
+    assertThatUnsignedInteger([RKHuman count:nil], is(equalToInt(2)));
     assertThatBool([deleteMe isDeleted], is(equalToBool(YES)));
 }
 

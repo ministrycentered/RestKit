@@ -23,28 +23,32 @@ RestKit utilizes the concepts of the Base URL and resource paths throughout the 
 
 Note that you can send *RKRequest* objects to arbitrary URL's by constructing them yourself.
 
-Dependencies
+Parsers
 -------------------------
 
-RestKit provides JSON parser implementations using JSONKit, SBJSON & YAJL. The recommended parser is JSONKit (as it is known to be the fastest JSON implementation available), but you may choose whatever parser you like and they can be changed at runtime.
+RestKit provides a pluggable parser interface configurable by MIME Type. The standard RestKit distribution includes two parsers:
 
-The sources for JSONKit, SBJSON and YAJL are included in the Vendor/ subdirectory. The headers are copied into the RestKit headers path at build time and can be imported into your project via:
+1. **RKJSONParserJSONKit** - A very fast JSON parser leveraging [JSONKit](http://github.com/johnezang/JSONKit)
+1. **RKXMLParserLibXML** - A custom LibXML2 based parser. Only provides parsing, not serialization.
 
-    #import <RestKit/Support/JSON/JSONKit/JSONKit.h>
-    #import <RestKit/Support/JSON/SBJSON/JSON.h>
-    #import <RestKit/Support/JSON/YAJL/YAJL.h>
+The JSONKit headers can be imported for direct use:
 
-Currently bundled version of these dependencies are:
+```objc
+    #import <RestKit/JSONKit.h>
+```
 
-* **JSONKit** - 1.4
-* **YAJLIOS** - 0.2.21
-* **SBJSON** - 2.3.1
+Additional parsers can be added to your RestKit application by linking the parsers into your application and configuring it to handle the appropriate
+MIME Type:
 
-If you currently link against or include JSONKit, SBJSON or YAJL in your project, you can disable the RKJSONParser targets and compile the appropriate RKJSONParser sources directly into your application.
+```objc
+    [[RKParserRegistry sharedRegistry] setParserClass:[SomeOtherParser class] forMIMEType:@"application/json"]];
+```
 
-XML parsing is supported via a custom, bundled parser written against LibXML.
+The RestKit project also provides optional additional parsers that can be installed separately from the main library:
 
-Additional parsing backend support is expected in future versions.
+1. [**RKJSONParserSBJSON**](https://github.com/RestKit/RKJSONParserSBJSON) - A JSON parser built on top of SBJSON
+1. [**RKJSONParserYAJL**](https://github.com/RestKit/RKJSONParserYAJL) - A JSON parser built on top of YAJL)
+1. [**RKJSONParserNXJSON**](https://github.com/RestKit/RKJSONParserNXJSON) - A JSON parser built on top of the Nextive JSON parser
 
 Documentation & Example Code
 -------------------------
@@ -63,24 +67,26 @@ Installation
 Quick Start (aka TL;DR)
 -----------
 
+RestKit assumes that you are using a modern Xcode project building to the DerivedData directory. Confirm your settings
+via the "File" menu > "Project Settings...". On the "Build" tab within the sheet that opens, click the "Advanced..."
+button and confirm that your "Build Location" is the "Derived Data Location".
+
 1. Add Git submodule to your project: `git submodule add git://github.com/RestKit/RestKit.git RestKit`
 1. Add cross-project reference by dragging **RestKit.xcodeproj** to your project
 1. Open build settings editor for your project
-1. Add **Other Linker Flags** for `-ObjC`
-1. Add **Header Search Path** for `$(SOURCE_ROOT)/RestKit/Build`
+1. Add **Other Linker Flags** for `-ObjC -all_load`
 1. Open target settings editor for the target you want to link RestKit into
 1. Add direct dependency on the **RestKit** aggregate target
 1. Link against required frameworks:
     1. **CFNetwork.framework**
     1. **CoreData.framework**
-    1. **MobileCoreServices.framework**
+    1. **Security.framework**
+    1. **MobileCoreServices.framework** on iOS or **CoreServices.framework** on OS X
     1. **SystemConfiguration.framework**
     1. **libxml2.dylib**
-1. Link against RestKit static library products:
-    1. **libRestKitSupport.a**
-    1. **libRestKitObjectMapping.a**
-    1. **libRestKitNetwork.a**
-    1. A JSON parser implementation (either **libRestKitJSONParserJSONKit.a**, **libRestKitJSONParserYAJL.a**, or **libRestKitJSONParserSBJSON.a**). We recommend JSONKit.
+1. Link against RestKit:
+    1. **libRestKit.a** on iOS
+    1. **RestKit.framework** on OS X
 1. Import the RestKit headers via `#import <RestKit/RestKit.h>`
 1. Build the project to verify installation is successful.
 
@@ -89,19 +95,25 @@ Visual Install Guide
 
 An step-by-step visual install guide for Xcode 4.x is available on the RestKit Wiki: https://github.com/RestKit/RestKit/wiki/Installing-RestKit-in-Xcode-4.x
 
+Community Resources
+-------------------------
+
+A Google Group (high traffic) for development discussions and user support is available at: [http://groups.google.com/group/restkit](http://groups.google.com/group/restkit)
+
+For users interested in low traffic updates about the library, an announcements list is also available:
+[http://groups.google.com/group/restkit-announce](http://groups.google.com/group/restkit-announce)
+
+Follow RestKit on Twitter:[http://twitter.com/restkit](http://twitter.com/restkit)
+
 Contributing
 -------------------------
 
-Forks, patches and other feedback are always welcome. 
-
-A Google Group for development and usage of library is available at: [http://groups.google.com/group/restkit](http://groups.google.com/group/restkit)
-
-Follow RestKit on Twitter:[http://twitter.com/restkit](http://twitter.com/restkit)
+Forks, patches and other feedback are always welcome.
 
 Credits
 -------------------------
 
-RestKit is brought to you by [Blake Watters](http://twitter.com/blakewatters) and the RestKit Team.
+RestKit is brought to you by [Blake Watters](http://twitter.com/blakewatters) and the RestKit team.
 
 Support is provided by the following organizations:
 

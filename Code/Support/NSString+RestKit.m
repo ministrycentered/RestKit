@@ -18,9 +18,16 @@
 //  limitations under the License.
 //
 
+#if TARGET_OS_IPHONE
+#import <MobileCoreServices/UTType.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 #import "NSString+RestKit.h"
-#import "../Network/RKClient.h"
+#import "RKClient.h"
 #import "RKFixCategoryBug.h"
+#include <netdb.h>
+#include <arpa/inet.h>
 
 RK_FIX_CATEGORY_BUG(NSString_RestKit)
 
@@ -110,6 +117,28 @@ RK_FIX_CATEGORY_BUG(NSString_RestKit)
 
 - (NSString *)stringByReplacingURLEncoding {
     return [self stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSString *)MIMETypeForPathExtension {
+    CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (CFStringRef)[self pathExtension], NULL);
+    if (uti != NULL) {
+        CFStringRef mime = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType);
+        CFRelease(uti);
+        if (mime != NULL) {
+            NSString *type = [NSString stringWithString:(NSString *)mime];
+            CFRelease(mime);
+            return type;
+        }
+    }
+	
+    return nil;
+}
+
+- (BOOL)isIPAddress {
+    struct sockaddr_in sa;
+    char *hostNameOrIPAddressCString = (char *) [self UTF8String];
+    int result = inet_pton(AF_INET, hostNameOrIPAddressCString, &(sa.sin_addr));    
+    return (result != 0);
 }
 
 @end

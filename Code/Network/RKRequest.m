@@ -22,22 +22,24 @@
 #import "RKResponse.h"
 #import "NSDictionary+RKRequestSerialization.h"
 #import "RKNotifications.h"
-#import "RKClient.h"
-#import "../Support/Support.h"
+#import "Support.h"
 #import "RKURL.h"
 #import "NSData+MD5.h"
 #import "NSString+MD5.h"
 #import "RKLog.h"
 #import "RKRequestCache.h"
-#import "TDOAuth.h"
+#import "GCOAuth.h"
 #import "NSURL+RestKit.h"
+#import "RKReachabilityObserver.h"
+#import "RKRequestQueue.h"
+#import "RKParams.h"
 
 // Set Logging Component
 #undef RKLogComponent
 #define RKLogComponent lcl_cRestKitNetwork
 
 @implementation RKRequest
-@class TDOAuth;
+@class GCOAuth;
 
 @synthesize URL = _URL;
 @synthesize URLRequest = _URLRequest;
@@ -59,6 +61,7 @@
 @synthesize OAuth2AccessToken = _OAuth2AccessToken;
 @synthesize OAuth2RefreshToken = _OAuth2RefreshToken;
 @synthesize queue = _queue;
+@synthesize reachabilityObserver = _reachabilityObserver;
 
 #if TARGET_OS_IPHONE
 @synthesize backgroundPolicy = _backgroundPolicy, backgroundTaskIdentifier = _backgroundTaskIdentifier;
@@ -242,14 +245,42 @@
     // Add OAuth headers if is need it
     // OAuth 1
     if(self.authenticationType == RKRequestAuthenticationTypeOAuth1){        
-        NSURLRequest *echo = [TDOAuth URLRequestForPath:[_URL path]
-                                          GETParameters:[_URL queryDictionary]
-                                                 scheme:[_URL scheme]
-                                                   host:[_URL host]
-                                            consumerKey:self.OAuth1ConsumerKey
-                                         consumerSecret:self.OAuth1ConsumerSecret
-                                            accessToken:self.OAuth1AccessToken
-                                            tokenSecret:self.OAuth1AccessTokenSecret];
+        NSURLRequest *echo = nil;
+        
+        // use the suitable parameters dict
+        NSDictionary *parameters = nil;
+        if ([self.params isKindOfClass:[RKParams class]])
+            parameters = [(RKParams *)self.params dictionaryOfPlainTextParams];
+        else 
+            parameters = [_URL queryDictionary];
+            
+        if (self.method == RKRequestMethodPUT)
+            echo = [GCOAuth URLRequestForPath:[_URL path]
+                                PUTParameters:parameters
+                                       scheme:[_URL scheme]
+                                         host:[_URL host]
+                                  consumerKey:self.OAuth1ConsumerKey
+                               consumerSecret:self.OAuth1ConsumerSecret
+                                  accessToken:self.OAuth1AccessToken
+                                  tokenSecret:self.OAuth1AccessTokenSecret];
+        else if (self.method == RKRequestMethodPOST)
+            echo = [GCOAuth URLRequestForPath:[_URL path]
+                               POSTParameters:parameters
+                                       scheme:[_URL scheme]
+                                         host:[_URL host]
+                                  consumerKey:self.OAuth1ConsumerKey
+                               consumerSecret:self.OAuth1ConsumerSecret
+                                  accessToken:self.OAuth1AccessToken
+                                  tokenSecret:self.OAuth1AccessTokenSecret];
+        else
+            echo = [GCOAuth URLRequestForPath:[_URL path]
+                                GETParameters:[_URL queryDictionary]
+                                       scheme:[_URL scheme]
+                                         host:[_URL host]
+                                  consumerKey:self.OAuth1ConsumerKey
+                               consumerSecret:self.OAuth1ConsumerSecret
+                                  accessToken:self.OAuth1AccessToken
+                                  tokenSecret:self.OAuth1AccessTokenSecret];
         [_URLRequest setValue:[echo valueForHTTPHeaderField:@"Authorization"] forHTTPHeaderField:@"Authorization"];
         [_URLRequest setValue:[echo valueForHTTPHeaderField:@"Accept-Encoding"] forHTTPHeaderField:@"Accept-Encoding"];
         [_URLRequest setValue:[echo valueForHTTPHeaderField:@"User-Agent"] forHTTPHeaderField:@"User-Agent"];
@@ -367,7 +398,11 @@
 }
 
 - (BOOL)shouldDispatchRequest {
-    return [RKClient sharedClient] == nil || [[RKClient sharedClient] isNetworkAvailable];
+    if (nil == self.reachabilityObserver || NO == [self.reachabilityObserver isReachabilityDetermined]) {
+        return YES;
+    }
+    
+    return [self.reachabilityObserver isNetworkReachable];
 }
 
 - (void)sendAsynchronously {
@@ -423,7 +458,7 @@
 			[self didFinishLoad:[self loadResponseFromCache]];
 
 		} else {
-            RKLogCritical(@"SharedClient = %@ and network availability = %d", [RKClient sharedClient], [[RKClient sharedClient] isNetworkAvailable]);
+            RKLogError(@"Failed to send request to %@ due to unreachable network. Reachability observer = %@", [[self URL] absoluteString], self.reachabilityObserver);
             NSString* errorMessage = [NSString stringWithFormat:@"The client is unable to contact the resource at %@", [[self URL] absoluteString]];
     		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
     								  errorMessage, NSLocalizedDescriptionKey,
@@ -447,11 +482,11 @@
         _isLoading = YES;
         [self didFinishLoad:response];
     } else if ([self shouldDispatchRequest]) {
-      RKLogDebug(@"Sending synchronous %@ request to URL %@.", [self HTTPMethod], [[self URL] absoluteString]);
-		  if (![self prepareURLRequest]) {
-      // TODO: Logging
-        return nil;
-      }
+        RKLogDebug(@"Sending synchronous %@ request to URL %@.", [self HTTPMethod], [[self URL] absoluteString]);
+        if (![self prepareURLRequest]) {
+            // TODO: Logging
+            return nil;
+        }
 
 		[[NSNotificationCenter defaultCenter] postNotificationName:RKRequestSentNotification object:self userInfo:nil];
 
@@ -524,7 +559,7 @@
   	_isLoading = NO;
   	_isLoaded = YES;
     
-    RKLogInfo(@"Status Code: %d", [response statusCode]);
+    RKLogInfo(@"Status Code: %ld", (long) [response statusCode]);
     RKLogInfo(@"Body: %@", [response bodyAsString]);
 
 	RKResponse* finalResponse = response;

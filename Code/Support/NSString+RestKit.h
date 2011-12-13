@@ -106,4 +106,23 @@
  */
 - (NSString *)stringByReplacingURLEncoding;
 
+/**
+ Interprets the receiver as a path and returns the MIME Type for the path extension 
+ using Core Services.
+ 
+ For example, given a string with the path /Users/blake/Documents/monkey.json we would get 
+ @"application/json" as the MIME Type.
+ 
+ @return The expected MIME Type of the resource identified by the path or nil if unknown
+ */
+- (NSString *)MIMETypeForPathExtension;
+
+/**
+ Returns YES if the receiver contains a valid IP address
+ 
+ For example, @"127.0.0.1" and @"10.0.1.35" would return YES
+ while @"restkit.org" would return NO
+ */
+- (BOOL)isIPAddress;
+
 @end

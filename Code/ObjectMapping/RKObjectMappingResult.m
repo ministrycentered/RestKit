@@ -20,7 +20,7 @@
 
 #import "RKObjectMappingResult.h"
 #import "RKObjectMapperError.h"
-#import "../Support/RKLog.h"
+#import "RKLog.h"
 
 @implementation RKObjectMappingResult
 
@@ -69,7 +69,7 @@
         return nil;
     }
     
-    if (count > 1) RKLogWarning(@"Coerced object mapping result containing %d objects into singular result.", count);
+    if (count > 1) RKLogWarning(@"Coerced object mapping result containing %lu objects into singular result.", (unsigned long) count);
     return [collection objectAtIndex:0];
 }
 

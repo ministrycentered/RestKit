@@ -10,9 +10,9 @@
 
 #import <objc/runtime.h>
 #import "NSManagedObject+ActiveRecord.h"
-#import "../ObjectMapping/RKObjectManager.h"
-#import "../Support/RKLog.h"
-#import "../Support/RKFixCategoryBug.h"
+#import "RKObjectManager.h"
+#import "RKLog.h"
+#import "RKFixCategoryBug.h"
 
 RK_FIX_CATEGORY_BUG(NSManagedObject_ActiveRecord)
 
@@ -120,7 +120,7 @@ static NSNumber *defaultBatchSize = nil;
 {
 	@synchronized(defaultBatchSize)
 	{
-		defaultBatchSize = [NSNumber numberWithInt:newBatchSize];
+		defaultBatchSize = [NSNumber numberWithUnsignedInteger:newBatchSize];
 	}
 }
 
@@ -213,16 +213,8 @@ static NSNumber *defaultBatchSize = nil;
 
 + (NSEntityDescription *)entityDescriptionInContext:(NSManagedObjectContext *)context
 {
-    if ([self respondsToSelector:@selector(entityInManagedObjectContext:)])
-    {
-        NSEntityDescription *entity = [self performSelector:@selector(entityInManagedObjectContext:)withObject:context];
-        return entity;
-    }
-    else
-    {
-        NSString *entityName = NSStringFromClass([self class]);
-        return [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
-    }
+    NSString *entityName = NSStringFromClass([self class]);
+    return [NSEntityDescription entityForName:entityName inManagedObjectContext:context];
 }
 
 + (NSEntityDescription *)entityDescription
@@ -333,7 +325,7 @@ static NSNumber *defaultBatchSize = nil;
 	NSUInteger count = [context countForFetchRequest:request error:&error];
 	[self handleErrors:error];
 	
-	return [NSNumber numberWithUnsignedInt:count];	
+	return [NSNumber numberWithUnsignedInteger:count];	
 }
 
 + (NSNumber *)numberOfEntitiesWithPredicate:(NSPredicate *)searchTerm;
@@ -714,16 +706,8 @@ static NSNumber *defaultBatchSize = nil;
 
 + (id)createInContext:(NSManagedObjectContext *)context
 {
-    if ([self respondsToSelector:@selector(insertInManagedObjectContext:)])
-    {
-        id entity = [self performSelector:@selector(insertInManagedObjectContext:)withObject:context];
-        return entity;
-    }
-    else
-    {
-        NSString *entityName = NSStringFromClass([self class]);
-        return [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context];
-    }
+    NSString *entityName = NSStringFromClass([self class]);
+    return [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context];
 }
 
 + (id)createEntity

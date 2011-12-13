@@ -67,7 +67,7 @@ static NSDateFormatter* __rfc1123DateFormatter;
 			if (!fileExists) {
 				NSError* error = nil;
 				BOOL created = [fileManager createDirectoryAtPath:path
-									  withIntermediateDirectories:NO
+									  withIntermediateDirectories:YES
 													   attributes:nil
 															error:&error];
 				if (!created || error != nil) {
@@ -189,7 +189,7 @@ static NSDateFormatter* __rfc1123DateFormatter;
 				[headers setObject:[[RKRequestCache rfc1123DateFormatter] stringFromDate:[NSDate date]]
 							forKey:cacheDateHeaderKey];
                 // Cache status code
-                [headers setObject:[NSNumber numberWithInt:urlResponse.statusCode]
+                [headers setObject:[NSNumber numberWithInteger:urlResponse.statusCode]
 							forKey:cacheResponseCodeKey];
                 // Cache MIME Type
                 [headers setObject:urlResponse.MIMEType

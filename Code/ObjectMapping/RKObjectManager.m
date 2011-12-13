@@ -20,9 +20,9 @@
 
 #import "RKObjectManager.h"
 #import "RKObjectSerializer.h"
-#import "../CoreData/RKManagedObjectStore.h"
-#import "../CoreData/RKManagedObjectLoader.h"
-#import "../Support/Support.h"
+#import "RKManagedObjectStore.h"
+#import "RKManagedObjectLoader.h"
+#import "Support.h"
 #import "RKErrorMessage.h"
 
 NSString* const RKDidEnterOfflineModeNotification = @"RKDidEnterOfflineModeNotification";
@@ -64,8 +64,8 @@ static RKObjectManager* sharedManager = nil;
         		
 		[[NSNotificationCenter defaultCenter] addObserver:self
 												 selector:@selector(reachabilityChanged:)
-													 name:RKReachabilityStateChangedNotification
-												   object:_client.baseURLReachabilityObserver];
+													 name:RKReachabilityDidChangeNotification
+												   object:_client.reachabilityObserver];
 	}
     
 	return self;
@@ -115,7 +115,7 @@ static RKObjectManager* sharedManager = nil;
 }
 
 - (void)reachabilityChanged:(NSNotification*)notification {
-	BOOL isHostReachable = [self.client.baseURLReachabilityObserver isNetworkReachable];
+	BOOL isHostReachable = [self.client.reachabilityObserver isNetworkReachable];
 
 	_onlineState = isHostReachable ? RKObjectManagerOnlineStateConnected : RKObjectManagerOnlineStateDisconnected;
 

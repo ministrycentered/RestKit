@@ -3,7 +3,7 @@
 //  RestKit
 //
 //  Created by Blake Watters on 6/29/11.
-//  Copyright 2011 Two Toasters
+//  Copyright 2011 RestKit
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,13 +20,14 @@
 
 #import "RKSpecEnvironment.h"
 #import "RKURL.h"
+#import "NSURL+RestKit.h"
 
 @interface RKURLSpec : RKSpec
 @end
     
 @implementation RKURLSpec
 
-- (void)itShouldNotExplodeBecauseOfUnicodeCharacters {
+- (void)testShouldNotExplodeBecauseOfUnicodeCharacters {
     NSException* failed = nil;
     @try {
         [RKURL URLWithBaseURLString:@"http://test.com" resourcePath:@"/places.json?category=Automóviles"];
@@ -39,45 +40,50 @@
     }
 }
 
-- (void)itShouldEscapeQueryParameters {
+- (void)testShouldEscapeQueryParameters {
     NSDictionary* queryParams = [NSDictionary dictionaryWithObjectsAndKeys:@"What is your #1 e-mail?", @"question", @"john+restkit@gmail.com", @"answer", nil];
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@"/test" queryParams:queryParams];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/test?answer=john%2Brestkit%40gmail.com&question=What%20is%20your%20%231%20e-mail%3F")));
 }
 
-- (void)itShouldHandleNilQueryParameters {
+- (void)testShouldHandleNilQueryParameters {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@"/test" queryParams:nil];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/test")));
 }
 
-- (void)itShouldHandleEmptyQueryParameters {
+- (void)testShouldHandleEmptyQueryParameters {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@"/test" queryParams:[NSDictionary dictionary]];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/test")));
 }
 
-- (void)itShouldHandleResourcePathWithoutLeadingSlash {
+- (void)testShouldHandleResourcePathWithoutLeadingSlash {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@"test"];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/test")));
 }
 
-- (void)itShouldHandleEmptyResourcePath {
+- (void)testShouldHandleEmptyResourcePath {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@""];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org")));
 }
 
-- (void)itShouldHandleBaseURLsWithAPath {
+- (void)testShouldHandleBaseURLsWithAPath {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org/this" resourcePath:@"/test" queryParams:nil];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/this/test")));
 }
 
-- (void)itShouldSimplifyURLsWithSeveralSlashes {
+- (void)testShouldSimplifyURLsWithSeveralSlashes {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org//this//" resourcePath:@"/test" queryParams:nil];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/this/test")));
 }
 
-- (void)itShouldPreserveTrailingSlash {
+- (void)testShouldPreserveTrailingSlash {
     RKURL* URL = [RKURL URLWithBaseURLString:@"http://restkit.org" resourcePath:@"/test/" queryParams:nil];
     assertThat([URL absoluteString], is(equalTo(@"http://restkit.org/test/")));    
+}
+
+- (void)testShouldReturnTheMIMETypeForURL {
+    NSURL *URL = [NSURL URLWithString:@"http://restkit.org/path/to/resource.xml"];
+    assertThat([URL MIMETypeForPathExtension], is(equalTo(@"application/xml")));
 }
 
 @end

@@ -19,7 +19,7 @@
 //
 
 #import "RKParams.h"
-#import "../Support/RKLog.h"
+#import "RKLog.h"
 #import "NSString+MD5.h"
 
 // Need for iOS 5 UIDevice workaround
@@ -87,6 +87,14 @@ NSString* const kRKStringBoundary = @"0xKhTmLbOuNdArY";
 	[attachment release];
 	
 	return attachment;
+}
+
+- (NSDictionary *)dictionaryOfPlainTextParams {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    for (RKParamsAttachment *attachment in _attachments)
+        if (attachment.value)   // if the value exist, it is plain text param
+            [result setValue:attachment.value forKey:attachment.name];
+    return [NSDictionary dictionaryWithDictionary:result];
 }
 
 - (RKParamsAttachment *)setFile:(NSString *)filePath forParam:(NSString *)param {

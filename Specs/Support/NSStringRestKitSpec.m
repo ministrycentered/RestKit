@@ -28,7 +28,7 @@
 
 @implementation NSStringRestKitSpec
 
-- (void)itShouldAppendQueryParameters {
+- (void)testShouldAppendQueryParameters {
     NSString *resourcePath = @"/controller/objects/";
     NSDictionary *queryParams = [NSDictionary dictionaryWithObjectsAndKeys:
                                  @"ascend", @"sortOrder",
@@ -42,7 +42,7 @@
     assertThatBool(isValidPath, is(equalToBool(YES)));
 }
 
-- (void)itShouldInterpolateObjects {
+- (void)testShouldInterpolateObjects {
     RKObjectMapperSpecModel *person = [[[RKObjectMapperSpecModel alloc] init] autorelease];
     person.name = @"CuddleGuts";
     person.age  = [NSNumber numberWithInt:6];
@@ -52,7 +52,7 @@
     assertThat(interpolatedPath, is(equalTo(expectedPath)));
 }
 
-- (void)itShouldInterpolateObjectsWithDeprecatedParentheses {
+- (void)testShouldInterpolateObjectsWithDeprecatedParentheses {
     RKObjectMapperSpecModel *person = [[[RKObjectMapperSpecModel alloc] init] autorelease];
     person.name = @"CuddleGuts";
     person.age  = [NSNumber numberWithInt:6];
@@ -62,12 +62,24 @@
     assertThat(interpolatedPath, is(equalTo(expectedPath)));
 }
 
-- (void)itShouldParseQueryParameters {
+- (void)testShouldParseQueryParameters {
     NSString *resourcePath = @"/views/thing/?keyA=valA&keyB=valB";
     NSDictionary *queryParams = [resourcePath queryParametersUsingEncoding:NSASCIIStringEncoding];
     assertThat(queryParams, isNot(empty()));
     assertThat(queryParams, hasCountOf(2));
     assertThat(queryParams, hasEntries(@"keyA", @"valA", @"keyB", @"valB", nil));
+}
+
+- (void)testShouldReturnTheMIMETypeForAPath {
+    NSString *MIMEType = [@"/path/to/file.xml" MIMETypeForPathExtension];
+    assertThat(MIMEType, is(equalTo(@"application/xml")));
+}
+
+- (void)itShouldKnowIfTheReceiverContainsAnIPAddress {
+    assertThatBool([@"127.0.0.1" isIPAddress], equalToBool(YES));
+    assertThatBool([@"173.45.234.197" isIPAddress], equalToBool(YES));
+    assertThatBool([@"google.com" isIPAddress], equalToBool(NO));
+    assertThatBool([@"just some random text" isIPAddress], equalToBool(NO));
 }
 
 @end
