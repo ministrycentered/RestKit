@@ -882,7 +882,7 @@
     RKObjectMappingOperation* operation = [[RKObjectMappingOperation alloc] initWithSourceObject:dictionary destinationObject:user mapping:mapping];
     BOOL success = [operation performMapping:nil];
     assertThatBool(success, is(equalToBool(YES)));
-    assertThat(user.name, is(equalTo([NSNull null])));
+    assertThat(user.name, is(nilValue()));
     [operation release];
 }
 
@@ -964,6 +964,8 @@
 #pragma mark - Attribute Mapping
 
 - (void)testShouldMapAStringToADateAttribute {
+    [RKObjectMapping setDefaultDateFormatters:nil];
+
     RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* birthDateMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"birthdate" toKeyPath:@"birthDate"];
     [mapping addAttributeMapping:birthDateMapping];

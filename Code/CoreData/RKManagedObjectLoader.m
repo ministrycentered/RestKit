@@ -113,10 +113,20 @@
         
         NSArray* results = [result asCollection];
         NSArray* cachedObjects = [self.objectStore objectsForResourcePath:rkURL.resourcePath];
+        NSObject<RKManagedObjectCache>* managedObjectCache = self.objectStore.managedObjectCache;
+        BOOL queryForDeletion = [managedObjectCache respondsToSelector:@selector(shouldDeleteOrphanedObject:)];
+      
         for (id object in cachedObjects) {
             if (NO == [results containsObject:object]) {
+              if (queryForDeletion && [managedObjectCache shouldDeleteOrphanedObject:object] == NO)
+              {
+                RKLogTrace(@"Sparing orphaned object %@ even though not returned in result set", object);
+              }
+              else
+              {
                 RKLogTrace(@"Deleting orphaned object %@: not found in result set and expected at this resource path", object);
                 [[self.objectStore managedObjectContext] deleteObject:object];
+              }
             }
         }
     } else {
@@ -126,7 +136,7 @@
 
 // NOTE: We are on the background thread here, be mindful of Core Data's threading needs
 - (void)processMappingResult:(RKObjectMappingResult*)result {
-    NSAssert(![NSThread isMainThread], @"Mapping result processing should occur on a background thread");
+    NSAssert(_sentSynchronously || ![NSThread isMainThread], @"Mapping result processing should occur on a background thread");
     if (_targetObjectID && self.targetObject && self.method == RKRequestMethodDELETE) {
         NSManagedObject* backgroundThreadObject = [self.objectStore objectWithID:_targetObjectID];
         RKLogInfo(@"Deleting local object %@ due to DELETE request", backgroundThreadObject);

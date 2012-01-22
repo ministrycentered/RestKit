@@ -180,6 +180,7 @@ extern NSString* cacheURLKey;
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
 	[_body appendData:data];
+    [_request invalidateTimeoutTimer];
     if ([[_request delegate] respondsToSelector:@selector(request:didReceivedData:totalBytesReceived:totalBytesExectedToReceive:)]) {
         [[_request delegate] request:_request didReceivedData:[data length] totalBytesReceived:[_body length] totalBytesExectedToReceive:_httpURLResponse.expectedContentLength];
     }
@@ -189,6 +190,7 @@ extern NSString* cacheURLKey;
     RKLogDebug(@"NSHTTPURLResponse Status Code: %ld", (long) [response statusCode]);
     RKLogDebug(@"Headers: %@", [response allHeaderFields]);
 	_httpURLResponse = [response retain];
+    [_request invalidateTimeoutTimer];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -199,6 +201,7 @@ extern NSString* cacheURLKey;
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	_failureError = [error retain];
 	[_request didFailLoadWithError:_failureError];
+    [_request invalidateTimeoutTimer];
 }
 
 - (NSInputStream *)connection:(NSURLConnection *)connection needNewBodyStream:(NSURLRequest *)request {
@@ -223,12 +226,25 @@ extern NSString* cacheURLKey;
 	return [NSHTTPURLResponse localizedStringForStatusCode:[self statusCode]];
 }
 
-- (NSData*)body {
+- (NSData *)body {
 	return _body;
 }
 
-- (NSString*)bodyAsString {
-	return [[[NSString alloc] initWithData:self.body encoding:NSUTF8StringEncoding] autorelease];
+- (NSString *)bodyEncodingName {
+    return [_httpURLResponse textEncodingName];    
+}
+
+- (NSStringEncoding)bodyEncoding {
+    CFStringEncoding cfEncoding = kCFStringEncodingInvalidId;    
+    NSString *textEncodingName = [self bodyEncodingName];
+    if (textEncodingName) {
+        cfEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef) textEncodingName);
+    }
+    return (cfEncoding ==  kCFStringEncodingInvalidId) ? NSUTF8StringEncoding : CFStringConvertEncodingToNSStringEncoding(cfEncoding);
+}
+
+- (NSString *)bodyAsString {
+	return [[[NSString alloc] initWithData:self.body encoding:[self bodyEncoding]] autorelease];
 }
 
 - (id)bodyAsJSON {
@@ -244,7 +260,7 @@ extern NSString* cacheURLKey;
     }
     id object = [parser objectFromString:[self bodyAsString] error:error];
     if (object == nil) {
-        if (*error) {
+        if (error && *error) {
             RKLogError(@"Unable to parse response body: %@", [*error localizedDescription]);
         }
         return nil;
