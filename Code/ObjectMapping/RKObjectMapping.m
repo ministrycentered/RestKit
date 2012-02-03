@@ -327,7 +327,7 @@ static NSDateFormatter *preferredDateFormatter = nil;
 }
 
 + (void)addDefaultDateFormatterForString:(NSString *)dateFormatString inTimeZone:(NSTimeZone *)nilOrTimeZone {
-    NSDateFormatter *dateFormatter = [NSDateFormatter new];
+    NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
     dateFormatter.dateFormat = dateFormatString;
     dateFormatter.locale = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"] autorelease];
     if (nilOrTimeZone) {
