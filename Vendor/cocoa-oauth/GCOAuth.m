@@ -113,7 +113,7 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
                            [GCOAuth nonce], @"oauth_nonce",
                            [GCOAuth timeStamp], @"oauth_timestamp",
                            @"1.0",  @"oauth_version",
-                           @"HMAC-SHA1", @"oauth_signature_method",
+                           @"PLAINTEXT", @"oauth_signature_method",
                            [[accessToken copy] autorelease], @"oauth_token", // leave accessToken last or you'll break XAuth attempts
                            nil];
         signatureSecret = [[NSString stringWithFormat:@"%@&%@", [consumerSecret pcen], [tokenSecret ?: @"" pcen]] retain];
@@ -146,7 +146,7 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
     return [@"OAuth " stringByAppendingString:[entries componentsJoinedByString:@","]];
 }
 - (NSString *)signature {
-    
+    /*
     // get signature components
     NSData *base = [[self signatureBase] dataUsingEncoding:NSUTF8StringEncoding];
     NSData *secret = [signatureSecret dataUsingEncoding:NSUTF8StringEncoding];
@@ -161,7 +161,9 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
     // base 64
     NSData *data = [NSData dataWithBytes:digest length:CC_SHA1_DIGEST_LENGTH];
     return [data base64EncodedString];
+	*/
     
+	return signatureSecret;
 }
 - (NSString *)signatureBase {
     
@@ -411,7 +413,9 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
 }
 
 @end
+
 @implementation NSString (GCOAuthAdditions)
+
 - (NSString *)pcen {
     CFStringRef string = CFURLCreateStringByAddingPercentEscapes(NULL,
                                                                  (CFStringRef)self,
@@ -420,4 +424,5 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
                                                                  kCFStringEncodingUTF8);
     return [(NSString *)string autorelease];
 }
+
 @end
