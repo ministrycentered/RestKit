@@ -61,6 +61,7 @@
 @synthesize OAuth2AccessToken = _OAuth2AccessToken;
 @synthesize OAuth2RefreshToken = _OAuth2RefreshToken;
 @synthesize queue = _queue;
+@synthesize timeoutInterval = _timeoutInterval;
 @synthesize reachabilityObserver = _reachabilityObserver;
 
 #if TARGET_OS_IPHONE
@@ -79,6 +80,7 @@
         _authenticationType = RKRequestAuthenticationTypeNone;
 		_cachePolicy = RKRequestCachePolicyDefault;
         _cacheTimeoutInterval = 0;
+        _timeoutInterval = 120.0;
 	}
 	return self;
 }
@@ -138,25 +140,25 @@
 
 - (void)dealloc {    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-  	self.delegate = nil;
-  	[_connection cancel];
-  	[_connection release];
-  	_connection = nil;
-  	[_userData release];
-  	_userData = nil;
-  	[_URL release];
-  	_URL = nil;
-  	[_URLRequest release];
-  	_URLRequest = nil;
-  	[_params release];
-  	_params = nil;    
-  	[_additionalHTTPHeaders release];
-  	_additionalHTTPHeaders = nil;
-  	[_username release];
-  	_username = nil;
-  	[_password release];
-  	_password = nil;
+
+    self.delegate = nil;
+    [_connection cancel];
+    [_connection release];
+    _connection = nil;
+    [_userData release];
+    _userData = nil;
+    [_URL release];
+    _URL = nil;
+    [_URLRequest release];
+    _URLRequest = nil;
+    [_params release];
+    _params = nil;
+    [_additionalHTTPHeaders release];
+    _additionalHTTPHeaders = nil;
+    [_username release];
+    _username = nil;
+    [_password release];
+    _password = nil;
     [_cache release];
     _cache = nil;    
     [_OAuth1ConsumerKey release];
@@ -171,6 +173,9 @@
     _OAuth2AccessToken = nil;
     [_OAuth2RefreshToken release];
     _OAuth2RefreshToken = nil;
+    [self invalidateTimeoutTimer];
+    [_timeoutTimer release];
+    _timeoutTimer = nil;
     
     // Cleanup a background task if there is any
     [self cleanupBackgroundTask];
@@ -232,14 +237,17 @@
     }
     
     // Add authentication headers so we don't have to deal with an extra cycle for each message requiring basic auth.
-    if (self.authenticationType == RKRequestAuthenticationTypeHTTPBasic) {        
+    if (self.authenticationType == RKRequestAuthenticationTypeHTTPBasic && _username && _password) {
         CFHTTPMessageRef dummyRequest = CFHTTPMessageCreateRequest(kCFAllocatorDefault, (CFStringRef)[self HTTPMethod], (CFURLRef)[self URL], kCFHTTPVersion1_1);
-        
-        CFHTTPMessageAddAuthentication(dummyRequest, nil, (CFStringRef)_username, (CFStringRef)_password,kCFHTTPAuthenticationSchemeBasic, FALSE);
-        CFStringRef authorizationString = CFHTTPMessageCopyHeaderFieldValue(dummyRequest, CFSTR("Authorization"));
-        [_URLRequest setValue:(NSString *)authorizationString forHTTPHeaderField:@"Authorization"];
-        CFRelease(dummyRequest);
-        CFRelease(authorizationString);
+        if (dummyRequest) {
+          CFHTTPMessageAddAuthentication(dummyRequest, nil, (CFStringRef)_username, (CFStringRef)_password,kCFHTTPAuthenticationSchemeBasic, FALSE);
+          CFStringRef authorizationString = CFHTTPMessageCopyHeaderFieldValue(dummyRequest, CFSTR("Authorization"));
+          if (authorizationString) {
+            [_URLRequest setValue:(NSString *)authorizationString forHTTPHeaderField:@"Authorization"];
+            CFRelease(authorizationString);
+          }
+          CFRelease(dummyRequest);
+        }
     }
     
     // Add OAuth headers if is need it
@@ -317,6 +325,7 @@
 	[_connection cancel];
 	[_connection release];
 	_connection = nil;
+    [self invalidateTimeoutTimer];
 	_isLoading = NO;
     
     if (informDelegate && [_delegate respondsToSelector:@selector(requestDidCancelLoad:)]) {
@@ -413,6 +422,7 @@
         _isLoading = YES;
         [self didFinishLoad:response];
     } else if ([self shouldDispatchRequest]) {
+        [self createTimeoutTimer];
 #if TARGET_OS_IPHONE
         // Background Request Policy support
         UIApplication* app = [UIApplication sharedApplication];
@@ -483,6 +493,8 @@
         [self didFinishLoad:response];
     } else if ([self shouldDispatchRequest]) {
         RKLogDebug(@"Sending synchronous %@ request to URL %@.", [self HTTPMethod], [[self URL] absoluteString]);
+        [self createTimeoutTimer];
+        
         if (![self prepareURLRequest]) {
             // TODO: Logging
             return nil;
@@ -530,6 +542,26 @@
     [self cancelAndInformDelegate:YES];
 }
 
+- (void)createTimeoutTimer {
+    _timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:self.timeoutInterval target:self selector:@selector(timeout) userInfo:nil repeats:NO];
+}
+
+- (void)timeout {
+    [self cancelAndInformDelegate:NO];
+    RKLogError(@"Failed to send request to %@ due to connection timeout. Timeout interval = %f", [[self URL] absoluteString], self.timeoutInterval);
+    NSString* errorMessage = [NSString stringWithFormat:@"The client timed out connecting to the resource at %@", [[self URL] absoluteString]];
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                              errorMessage, NSLocalizedDescriptionKey,
+                              nil];
+    NSError* error = [NSError errorWithDomain:RKRestKitErrorDomain code:RKRequestConnectionTimeoutError userInfo:userInfo];
+    [self didFailLoadWithError:error];
+}
+
+- (void)invalidateTimeoutTimer {
+    [_timeoutTimer invalidate];
+    _timeoutTimer = nil;
+}
+
 - (void)didFailLoadWithError:(NSError*)error {
 	if (_cachePolicy & RKRequestCachePolicyLoadOnError &&
 		[self.cache hasResponseForRequest:self]) {
@@ -560,7 +592,7 @@
   	_isLoaded = YES;
     
     RKLogInfo(@"Status Code: %ld", (long) [response statusCode]);
-    RKLogInfo(@"Body: %@", [response bodyAsString]);
+    RKLogDebug(@"Body: %@", [response bodyAsString]);
 
 	RKResponse* finalResponse = response;
 

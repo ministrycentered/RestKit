@@ -31,6 +31,7 @@
 @end
 
 @interface RKRequestSpec : RKSpec {
+    int _methodInvocationCounter;
 }
 
 @end
@@ -40,6 +41,11 @@
 - (void)setUp {
     // Clear the cache directory
     RKSpecClearCacheDirectory();
+    _methodInvocationCounter = 0;
+}
+
+- (int)incrementMethodInvocationCounter {
+    return _methodInvocationCounter++;
 }
 
 /**
@@ -84,6 +90,34 @@
     assertThat(request.URLRequest.HTTPBody, equalTo(data));
     assertThat(request.HTTPBody, equalTo(data));
     assertThat(request.HTTPBodyString, equalTo(JSON));
+}
+
+- (void)testShouldTimeoutAtInterval {
+    RKSpecResponseLoader* loader = [RKSpecResponseLoader responseLoader];
+    id loaderMock = [OCMockObject partialMockForObject:loader];
+    NSString* url = [NSString stringWithFormat:@"%@/timeout", RKSpecGetBaseURL()];
+    NSURL* URL = [NSURL URLWithString:url];
+    RKRequest* request = [[RKRequest alloc] initWithURL:URL];
+    request.delegate = loaderMock;
+    request.timeoutInterval = 3.0;
+    [[[loaderMock expect] andForwardToRealObject] request:request didFailLoadWithError:OCMOCK_ANY];
+    [request sendAsynchronously];
+    [loaderMock waitForResponse];
+    assertThatInt((int)loader.failureError.code, equalToInt(RKRequestConnectionTimeoutError));
+    [request release];
+}
+
+- (void)testShouldCreateOneTimeoutTimer {
+    RKSpecResponseLoader* loader = [RKSpecResponseLoader responseLoader];
+    RKURL* url = RKSpecGetBaseURL();
+    RKRequest* request = [[RKRequest alloc] initWithURL:url];
+    request.delegate = loader;
+    id requestMock = [OCMockObject partialMockForObject:request];
+    [[[requestMock expect] andCall:@selector(incrementMethodInvocationCounter) onObject:self] createTimeoutTimer];
+    [requestMock sendAsynchronously];
+    [loader waitForResponse];
+    assertThatInt(_methodInvocationCounter, equalToInt(1));
+    [request release];
 }
 
 #pragma mark - Background Policies

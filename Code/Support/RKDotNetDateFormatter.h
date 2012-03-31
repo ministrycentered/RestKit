@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+// NSRegularExpression not available until OS X 10.7 and iOS 4.0 (NS_CLASS_AVAILABLE(10_7, 4_0))
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1070 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 40000
+
 /**
  A subclass of NSDateFormatter that serves as translator between ASP.NET date serializations in JSON
  strings and NSDate objects. This is useful for properly mapping these dates from an ASP.NET driven backend.
@@ -42,8 +45,9 @@
  Acceptable examples are:
     /Date(1112715000000-0500)/
     /Date(1112715000000)/
+    /Date(-1112715000000)/
  Where 1112715000000 is the number of milliseconds since January 1, 1970 00:00 GMT/UTC, and -0500 represents the
- timezone offset from GMT in 24-hour time.  
+ timezone offset from GMT in 24-hour time. Negatives milliseconds are treated as dates before January 1, 1970.
  
  *NOTE* NSDate objects do not have timezones, and you should never change an actual date value based on a
  timezone offset.  However, timezones are important when presenting dates to the user.  Therefore,
@@ -75,3 +79,5 @@
  */
 - (NSString *)stringFromDate:(NSDate *)date;
 @end
+
+#endif

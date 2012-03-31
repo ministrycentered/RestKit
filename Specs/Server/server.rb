@@ -96,6 +96,12 @@ class RestKit::SpecServer < Sinatra::Base
     "File Not Found"
   end
   
+  get '/encoding' do
+    status 200
+    content_type 'text/plain; charset=us-ascii'
+    "ASCII Charset"
+  end
+  
   post '/notNestedUser' do
     content_type 'application/json'
     { 'email' => 'changed', 'ID' => 31337 }.to_json
@@ -113,6 +119,15 @@ class RestKit::SpecServer < Sinatra::Base
   end
   
   put '/ping' do
+    status 200
+    content_type 'application/json'
+    params.to_json
+  end
+
+  get '/timeout' do
+    # We need to leave this around 4 seconds so we don't hold up the
+    # process too long and cause the tests launched after to fail.
+    sleep 4
     status 200
     content_type 'application/json'
     params.to_json
