@@ -164,6 +164,7 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
 	*/
     
 	return signatureSecret;
+
 }
 - (NSString *)signatureBase {
     
