@@ -221,15 +221,18 @@
 - (void)performMappingOnBackgroundThread {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     
-    NSError* error = nil;
-    _result = [[self performMapping:&error] retain];
-    NSAssert(_result || error, @"Expected performMapping to return a mapping result or an error.");
-    if (self.result) {
-        [self processMappingResult:self.result];
-    } else if (error) {
-        [self didFailLoadWithError:error];
-    }
-
+	if (self.delegate)
+	{
+		NSError* error = nil;
+		_result = [[self performMapping:&error] retain];
+		NSAssert(_result || error, @"Expected performMapping to return a mapping result or an error.");
+		if (self.result) {
+			[self processMappingResult:self.result];
+		} else if (error) {
+			//[self didFailLoadWithError:error];
+		}
+	}
+	
 	[pool drain];
 }
 

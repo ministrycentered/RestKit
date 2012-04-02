@@ -204,6 +204,11 @@
     if ([self.delegate respondsToSelector:@selector(objectMapper:willMapFromObject:toObject:atKeyPath:usingMapping:)]) {
         [self.delegate objectMapper:self willMapFromObject:mappableObject toObject:destinationObject atKeyPath:keyPath usingMapping:mapping];
     }
+	
+	if (!self.delegate)
+	{
+		return NO;
+	}
     
     NSError* error = nil;
     

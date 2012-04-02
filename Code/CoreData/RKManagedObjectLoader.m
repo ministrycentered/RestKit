@@ -149,26 +149,35 @@
         NSError* error = [self.objectStore save];
         if (error) {
             RKLogError(@"Failed to save managed object context after mapping completed: %@", [error localizedDescription]);
-            NSMethodSignature* signature = [self.delegate methodSignatureForSelector:@selector(objectLoader:didFailWithError:)];
-            RKManagedObjectThreadSafeInvocation* invocation = [RKManagedObjectThreadSafeInvocation invocationWithMethodSignature:signature];
-            [invocation setTarget:self.delegate];
-            [invocation setSelector:@selector(objectLoader:didFailWithError:)];
-            [invocation setArgument:&self atIndex:2];
-            [invocation setArgument:&error atIndex:3];
-            [invocation invokeOnMainThread];
+            
+			if (self.delegate)
+			{
+				NSMethodSignature* signature = [self.delegate methodSignatureForSelector:@selector(objectLoader:didFailWithError:)];
+				RKManagedObjectThreadSafeInvocation* invocation = [RKManagedObjectThreadSafeInvocation invocationWithMethodSignature:signature];
+				[invocation setTarget:self.delegate];
+				[invocation setSelector:@selector(objectLoader:didFailWithError:)];
+				[invocation setArgument:&self atIndex:2];
+				[invocation setArgument:&error atIndex:3];
+				[invocation invokeOnMainThread];
+			}
+			
             return;
         }
     }
     
-    NSDictionary* dictionary = [result asDictionary];
-    NSMethodSignature* signature = [self methodSignatureForSelector:@selector(informDelegateOfObjectLoadWithResultDictionary:)];
-    RKManagedObjectThreadSafeInvocation* invocation = [RKManagedObjectThreadSafeInvocation invocationWithMethodSignature:signature];
-    [invocation setObjectStore:self.objectStore];
-    [invocation setTarget:self];
-    [invocation setSelector:@selector(informDelegateOfObjectLoadWithResultDictionary:)];
-    [invocation setArgument:&dictionary atIndex:2];
-    [invocation setManagedObjectKeyPaths:_managedObjectKeyPaths forArgument:2];
-    [invocation invokeOnMainThread];
+	if (self.delegate)
+	{
+		NSDictionary* dictionary = [result asDictionary];
+		NSMethodSignature* signature = [self methodSignatureForSelector:@selector(informDelegateOfObjectLoadWithResultDictionary:)];
+		RKManagedObjectThreadSafeInvocation* invocation = [RKManagedObjectThreadSafeInvocation invocationWithMethodSignature:signature];
+		[invocation setObjectStore:self.objectStore];
+		[invocation setTarget:self];
+		[invocation setSelector:@selector(informDelegateOfObjectLoadWithResultDictionary:)];
+		[invocation setArgument:&dictionary atIndex:2];
+		[invocation setManagedObjectKeyPaths:_managedObjectKeyPaths forArgument:2];
+		[invocation invokeOnMainThread];
+	}
+    
 }
 
 // Overloaded to handle deleting an object orphaned by a failed postObject:
