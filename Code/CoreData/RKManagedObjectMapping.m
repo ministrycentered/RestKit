@@ -99,12 +99,21 @@
 }
 
 - (id)mappableObjectForData:(id)mappableData {    
-    NSAssert(mappableData, @"Mappable data cannot be nil");
+    //NSAssert(mappableData, @"Mappable data cannot be nil");
     
+	if (mappableData == nil)
+	{
+		return nil;
+	}
+	
     // TODO: We do not want to be using this singleton reference to the object store.
     // Clean this up when we update the Core Data internals
     RKManagedObjectStore* objectStore = [RKObjectManager sharedManager].objectStore;
-    NSAssert(objectStore, @"Object store cannot be nil");
+    
+	if (objectStore == nil)
+	{
+		return nil;
+	}
     
     id object = nil;
     id primaryKeyValue = nil;
@@ -139,7 +148,7 @@
     // If we have found the primary key attribute & value, try to find an existing instance to update
     if (primaryKeyAttribute && primaryKeyValue) {                
         object = [objectStore findOrCreateInstanceOfEntity:entity withPrimaryKeyAttribute:primaryKeyAttribute andValue:primaryKeyValue];
-        NSAssert2(object, @"Failed creation of managed object with entity '%@' and primary key value '%@'", entity.name, primaryKeyValue);
+        //NSAssert2(object, @"Failed creation of managed object with entity '%@' and primary key value '%@'", entity.name, primaryKeyValue);
     } else {
         object = [[[NSManagedObject alloc] initWithEntity:entity
                            insertIntoManagedObjectContext:objectStore.managedObjectContext] autorelease];

@@ -242,7 +242,7 @@
     } else if ([mapping isKindOfClass:[RKObjectMapping class]]) {
         objectMapping = (RKObjectMapping*)mapping;
     } else {
-        NSAssert(objectMapping, @"Encountered unknown mapping type '%@'", NSStringFromClass([mapping class]));
+        //NSAssert(objectMapping, @"Encountered unknown mapping type '%@'", NSStringFromClass([mapping class]));
     }
     
     if (objectMapping) {
