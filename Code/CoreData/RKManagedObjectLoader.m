@@ -200,4 +200,14 @@
     }
 }
 
+
+- (void)performMappingOnBackgroundThread {
+	
+	if (self.objectStore)
+	{
+		[super performMappingOnBackgroundThread];
+	}
+}
+
+
 @end
