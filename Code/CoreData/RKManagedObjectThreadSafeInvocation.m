@@ -52,7 +52,8 @@
                 }
             }
             
-            [argument setValue:collection forKeyPath:keyPath];
+			if (collection)
+				[argument setValue:collection forKeyPath:keyPath];
             [collection release];
         }
     }
@@ -62,22 +63,26 @@
     for (NSString* keyPath in keyPaths) {
         id value = [argument valueForKeyPath:keyPath];
         if ([value isKindOfClass:[NSManagedObjectID class]]) {
-            NSAssert(self.objectStore, @"Object store cannot be nil");
+            //NSAssert(self.objectStore, @"Object store cannot be nil");
             NSManagedObject* managedObject = [self.objectStore objectWithID:(NSManagedObjectID*)value];
-            NSAssert(managedObject, @"Expected managed object for ID %@, got nil", value);
-            [argument setValue:managedObject forKeyPath:keyPath];
+            //NSAssert(managedObject, @"Expected managed object for ID %@, got nil", value);
+			if (managedObject)
+				[argument setValue:managedObject forKeyPath:keyPath];
         } else if ([value respondsToSelector:@selector(allObjects)]) {
             id collection = [[[[[value class] alloc] init] autorelease] mutableCopy];
             for (id subObject in value) {
                 if ([subObject isKindOfClass:[NSManagedObjectID class]]) {
                     NSManagedObject* managedObject = [self.objectStore objectWithID:(NSManagedObjectID*)subObject];
-                    [collection addObject:managedObject];
+					if (managedObject)
+						[collection addObject:managedObject];
                 } else {
-                    [collection addObject:subObject];
+					if (subObject)
+						[collection addObject:subObject];
                 }
             }
             
-            [argument setValue:collection forKeyPath:keyPath];
+			if (collection)
+				[argument setValue:collection forKeyPath:keyPath];
             [collection release];
         }
     }
