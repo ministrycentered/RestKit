@@ -225,6 +225,13 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue) {
 
 - (BOOL)shouldSetValue:(id)value atKeyPath:(NSString*)keyPath
 {
+	NSLog(@"shouldSetValue: %@ atKeyPath: %@", value, keyPath);
+	
+	if ([self.destinationObject respondsToSelector:@selector(name)])
+		NSLog(@"object: %@", [self.destinationObject name]);
+	else
+		NSLog(@"object: %@", NSStringFromClass([self.destinationObject class]));
+	
 	id currentValue = [self.destinationObject valueForKeyPath:keyPath];
     if (currentValue == [NSNull null] || [currentValue isEqual:[NSNull null]]) {
         currentValue = nil;
@@ -560,10 +567,10 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue) {
     
     return NO;
 }
-
+/*
 - (NSString*)description {
     return [NSString stringWithFormat:@"RKObjectMappingOperation for '%@' object. Mapping values from object %@ to object %@ with object mapping %@",
             NSStringFromClass([self.destinationObject class]), self.sourceObject, self.destinationObject, self.objectMapping];
 }
-
+*/
 @end
