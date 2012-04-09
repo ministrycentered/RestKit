@@ -225,13 +225,6 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue) {
 
 - (BOOL)shouldSetValue:(id)value atKeyPath:(NSString*)keyPath
 {
-	NSLog(@"shouldSetValue: %@ atKeyPath: %@", value, keyPath);
-	
-	if ([self.destinationObject respondsToSelector:@selector(name)])
-		NSLog(@"object: %@", [self.destinationObject name]);
-	else
-		NSLog(@"object: %@", NSStringFromClass([self.destinationObject class]));
-	
 	id currentValue = [self.destinationObject valueForKeyPath:keyPath];
     if (currentValue == [NSNull null] || [currentValue isEqual:[NSNull null]]) {
         currentValue = nil;
