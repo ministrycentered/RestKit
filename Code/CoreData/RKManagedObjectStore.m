@@ -72,8 +72,14 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 		if (nilOrDirectoryPath == nil) {
 			nilOrDirectoryPath = [RKDirectory applicationDataDirectory];
 		} else {
-			BOOL isDir;
-			NSAssert1([[NSFileManager defaultManager] fileExistsAtPath:nilOrDirectoryPath isDirectory:&isDir] && isDir == YES, @"Specified storage directory exists", nilOrDirectoryPath);
+			//BOOL isDir;
+			
+			if (![[NSFileManager defaultManager] fileExistsAtPath:nilOrDirectoryPath])
+			{
+				[[NSFileManager defaultManager] createDirectoryAtPath:nilOrDirectoryPath withIntermediateDirectories:YES attributes:nil error:nil];
+			}
+			
+			//NSAssert1([[NSFileManager defaultManager] fileExistsAtPath:nilOrDirectoryPath isDirectory:&isDir] && isDir == YES, @"Specified storage directory exists", nilOrDirectoryPath);
 		}
 		_pathToStoreFile = [[nilOrDirectoryPath stringByAppendingPathComponent:_storeFilename] retain];
 		
