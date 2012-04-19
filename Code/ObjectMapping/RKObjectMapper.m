@@ -266,7 +266,7 @@
     // Perform the mapping
     BOOL foundMappable = NO;
     NSMutableDictionary* results = [NSMutableDictionary dictionary];
-    NSDictionary* mappingsByKeyPath = [self.mappingProvider mappingsByKeyPath];
+    NSDictionary* mappingsByKeyPath = [[self.mappingProvider mappingsByKeyPath] mutableCopy];
     for (NSString* keyPath in mappingsByKeyPath) {
         id mappingResult;
         id mappableValue;
@@ -308,6 +308,8 @@
             [results setObject:mappingResult forKey:keyPath];
         }
     }
+	
+	[mappingsByKeyPath release], mappingsByKeyPath = nil;
     
     // Allow any queued operations to complete
     RKLogDebug(@"The following operations are in the queue: %@", _operationQueue.operations);
