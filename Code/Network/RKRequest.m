@@ -222,6 +222,9 @@
 		[_URLRequest setValue:[_additionalHTTPHeaders valueForKey:header] forHTTPHeaderField:header];
 	}
 
+	[_URLRequest setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+	[_URLRequest setHTTPShouldHandleCookies:NO];
+	
 	if ([self shouldSendParams]) {
 		// Temporarily support older RKRequestSerializable implementations
 		if ([_params respondsToSelector:@selector(HTTPHeaderValueForContentType)]) {

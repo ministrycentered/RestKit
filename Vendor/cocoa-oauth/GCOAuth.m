@@ -406,6 +406,8 @@ static BOOL GCOAuthUseHTTPSCookieStorage = YES;
         [request setHTTPBody:data];
         [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
         [request setValue:length forHTTPHeaderField:@"Content-Length"];
+		[request setCachePolicy:NSURLRequestReloadIgnoringCacheData];
+		[request setHTTPShouldHandleCookies:NO];
     }
     
     // return
