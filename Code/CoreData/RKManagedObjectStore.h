@@ -52,6 +52,8 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
     NSManagedObjectModel* _managedObjectModel;
 	NSPersistentStoreCoordinator* _persistentStoreCoordinator;
 	NSObject<RKManagedObjectCache>* _managedObjectCache;
+	
+	NSManagedObjectContext * _mainThreadContext;
 }
 
 // The delegate for this object store

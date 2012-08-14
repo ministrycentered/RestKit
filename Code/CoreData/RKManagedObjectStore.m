@@ -143,39 +143,43 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 			if (self.delegate != nil && [self.delegate respondsToSelector:@selector(managedObjectStore:didFailToSaveContext:error:exception:)]) {
 				[self.delegate managedObjectStore:self didFailToSaveContext:moc error:error exception:nil];
 			}
-
-			NSDictionary* userInfo = [NSDictionary dictionaryWithObject:error forKey:@"error"];
-			[[NSNotificationCenter defaultCenter] postNotificationName:RKManagedObjectStoreDidFailSaveNotification object:self userInfo:userInfo];
-
-			if ([[error domain] isEqualToString:@"NSCocoaErrorDomain"]) {
-				NSDictionary *userInfo = [error userInfo];
-				NSArray *errors = [userInfo valueForKey:@"NSDetailedErrors"];
-				if (errors) {
-					for (NSError *detailedError in errors) {
-						NSDictionary *subUserInfo = [detailedError userInfo];
+			
+			if (error)
+			{
+				NSDictionary* userInfo = [NSDictionary dictionaryWithObject:error forKey:@"error"];
+				[[NSNotificationCenter defaultCenter] postNotificationName:RKManagedObjectStoreDidFailSaveNotification object:self userInfo:userInfo];
+				
+				if ([[error domain] isEqualToString:@"NSCocoaErrorDomain"]) {
+					NSDictionary *userInfo = [error userInfo];
+					NSArray *errors = [userInfo valueForKey:@"NSDetailedErrors"];
+					if (errors) {
+						for (NSError *detailedError in errors) {
+							NSDictionary *subUserInfo = [detailedError userInfo];
+							RKLogError(@"Core Data Save Error\n \
+									   NSLocalizedDescription:\t\t%@\n \
+									   NSValidationErrorKey:\t\t\t%@\n \
+									   NSValidationErrorPredicate:\t%@\n \
+									   NSValidationErrorObject:\n%@\n",
+									   [subUserInfo valueForKey:@"NSLocalizedDescription"],
+									   [subUserInfo valueForKey:@"NSValidationErrorKey"],
+									   [subUserInfo valueForKey:@"NSValidationErrorPredicate"],
+									   [subUserInfo valueForKey:@"NSValidationErrorObject"]);
+						}
+					}
+					else {
 						RKLogError(@"Core Data Save Error\n \
-							  NSLocalizedDescription:\t\t%@\n \
-							  NSValidationErrorKey:\t\t\t%@\n \
-							  NSValidationErrorPredicate:\t%@\n \
-							  NSValidationErrorObject:\n%@\n",
-							  [subUserInfo valueForKey:@"NSLocalizedDescription"], 
-							  [subUserInfo valueForKey:@"NSValidationErrorKey"], 
-							  [subUserInfo valueForKey:@"NSValidationErrorPredicate"], 
-							  [subUserInfo valueForKey:@"NSValidationErrorObject"]);
+								   NSLocalizedDescription:\t\t%@\n \
+								   NSValidationErrorKey:\t\t\t%@\n \
+								   NSValidationErrorPredicate:\t%@\n \
+								   NSValidationErrorObject:\n%@\n",
+								   [userInfo valueForKey:@"NSLocalizedDescription"],
+								   [userInfo valueForKey:@"NSValidationErrorKey"],
+								   [userInfo valueForKey:@"NSValidationErrorPredicate"],
+								   [userInfo valueForKey:@"NSValidationErrorObject"]);
 					}
 				}
-				else {
-					RKLogError(@"Core Data Save Error\n \
-							   NSLocalizedDescription:\t\t%@\n \
-							   NSValidationErrorKey:\t\t\t%@\n \
-							   NSValidationErrorPredicate:\t%@\n \
-							   NSValidationErrorObject:\n%@\n", 
-							   [userInfo valueForKey:@"NSLocalizedDescription"],
-							   [userInfo valueForKey:@"NSValidationErrorKey"], 
-							   [userInfo valueForKey:@"NSValidationErrorPredicate"], 
-							   [userInfo valueForKey:@"NSValidationErrorObject"]);
-				}
-			} 
+			}
+			 
 			return error;
 		}
 	}
@@ -190,16 +194,14 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	return nil;
 }
 
-- (NSManagedObjectContext*)newManagedObjectContext {
-	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] init];
-	[managedObjectContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
-	[managedObjectContext setUndoManager:nil];
-	[managedObjectContext setMergePolicy:NSOverwriteMergePolicy];
+- (NSManagedObjectContext*)newManagedObjectContext
+{
+	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+	if (![[NSThread currentThread] isMainThread])
+	{
+		[managedObjectContext setParentContext:_mainThreadContext];
+	}
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(objectsDidChange:)
-												 name:NSManagedObjectContextObjectsDidChangeNotification
-											   object:managedObjectContext];
 	return managedObjectContext;
 }
 
@@ -299,7 +301,19 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  *	for each NSThread.
  *
  */
--(NSManagedObjectContext*)managedObjectContext {
+-(NSManagedObjectContext*)managedObjectContext
+{
+	if ([[NSThread currentThread] isMainThread])
+	{
+		if (!_mainThreadContext)
+		{
+			_mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+			[_mainThreadContext setPersistentStoreCoordinator:_persistentStoreCoordinator];
+		}
+		
+		return _mainThreadContext;
+	}
+	
 	NSMutableDictionary* threadDictionary = [[NSThread currentThread] threadDictionary];
 	NSManagedObjectContext* backgroundThreadContext = [threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryContextKey];
 	if (!backgroundThreadContext) {
@@ -312,8 +326,15 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 													 name:NSManagedObjectContextDidSaveNotification
 												   object:backgroundThreadContext];
 	}
+	
 	return backgroundThreadContext;
 }
+
+- (NSManagedObjectContext *)mainThreadManagedObjectContext;
+{
+	return _mainThreadContext;
+}
+
 
 - (void)mergeChangesOnMainThreadWithNotification:(NSNotification*)notification {
 	assert([NSThread isMainThread]);
