@@ -127,6 +127,9 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	_persistentStoreCoordinator = nil;
 	[_managedObjectCache release];
 	_managedObjectCache = nil;
+	
+	[_masterContext release], _masterContext = nil;
+	[_mainThreadContext release], _mainThreadContext = nil;
     
 	[super dealloc];
 }
