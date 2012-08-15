@@ -199,7 +199,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
 	if (![[NSThread currentThread] isMainThread])
 	{
-		[managedObjectContext setParentContext:_mainThreadContext];
+		[managedObjectContext setParentContext:_masterContext];
 	}
 	
 	return managedObjectContext;
@@ -260,6 +260,12 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 			}
 		}
     }
+
+	_masterContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+	[_masterContext setPersistentStoreCoordinator:_persistentStoreCoordinator];
+
+	_mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+	[_mainThreadContext setParentContext:_masterContext];
 }
 
 - (void)deletePersistantStoreUsingSeedDatabaseName:(NSString *)seedFile {
@@ -281,6 +287,9 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	
 	[_persistentStoreCoordinator release];
 	_persistentStoreCoordinator = nil;
+
+	[_masterContext release], _masterContext = nil;
+	[_mainThreadContext release], _mainThreadContext = nil;
 	
 	[self clearThreadLocalStorage];
 	
@@ -305,12 +314,6 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 {
 	if ([[NSThread currentThread] isMainThread])
 	{
-		if (!_mainThreadContext)
-		{
-			_mainThreadContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-			[_mainThreadContext setPersistentStoreCoordinator:_persistentStoreCoordinator];
-		}
-		
 		return _mainThreadContext;
 	}
 	
@@ -335,18 +338,6 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	return _mainThreadContext;
 }
 
-
-- (void)mergeChangesOnMainThreadWithNotification:(NSNotification*)notification {
-	assert([NSThread isMainThread]);
-	[self.managedObjectContext performSelectorOnMainThread:@selector(mergeChangesFromContextDidSaveNotification:)
-												withObject:notification
-											 waitUntilDone:YES];
-}
-
-- (void)mergeChanges:(NSNotification *)notification {
-	// Merge changes into the main context on the main thread
-	[self performSelectorOnMainThread:@selector(mergeChangesOnMainThreadWithNotification:) withObject:notification waitUntilDone:YES];
-}
 
 - (void)objectsDidChange:(NSNotification*)notification {
 	NSDictionary* userInfo = notification.userInfo;

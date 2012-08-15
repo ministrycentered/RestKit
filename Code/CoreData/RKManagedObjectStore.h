@@ -52,8 +52,12 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
     NSManagedObjectModel* _managedObjectModel;
 	NSPersistentStoreCoordinator* _persistentStoreCoordinator;
 	NSObject<RKManagedObjectCache>* _managedObjectCache;
-	
+
+	// this thread is for UI events
 	NSManagedObjectContext * _mainThreadContext;
+
+	// our master context will handle talking to the PSC and saving to disk. it's private. do not create objects on it directly or try to call from another thread.
+	NSManagedObjectContext * _masterContext;
 }
 
 // The delegate for this object store
