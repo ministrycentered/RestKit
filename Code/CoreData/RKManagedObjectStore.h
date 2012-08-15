@@ -51,7 +51,7 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
 	NSString* _pathToStoreFile;
     NSManagedObjectModel* _managedObjectModel;
 	NSPersistentStoreCoordinator* _persistentStoreCoordinator;
-	NSObject<RKManagedObjectCache>* _managedObjectCache;
+	//NSObject<RKManagedObjectCache>* _managedObjectCache;
 
 	// this thread is for UI events
 	NSManagedObjectContext * _mainThreadContext;
@@ -77,7 +77,7 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
  * Managed object cache provides support for automatic removal of objects pruned
  * from a server side load. Also used to provide offline object loading
  */
-@property (nonatomic, retain) NSObject<RKManagedObjectCache>* managedObjectCache;
+//@property (nonatomic, retain) NSObject<RKManagedObjectCache>* managedObjectCache;
 
 /*
  * This returns an appropriate managed object context for this object store.
@@ -85,6 +85,8 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
  * a different NSManagedObjectContext for each thread.
  */
 @property (nonatomic, readonly) NSManagedObjectContext* managedObjectContext;
+
+@property (nonatomic, retain) NSManagedObjectContext * masterContext;
 
 /**
  * Initialize a new managed object store with a SQLite database with the filename specified
@@ -150,6 +152,6 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
  *
  * See managedObjectCache above
  */
-- (NSArray*)objectsForResourcePath:(NSString*)resourcePath;
+//- (NSArray*)objectsForResourcePath:(NSString*)resourcePath;
 
 @end

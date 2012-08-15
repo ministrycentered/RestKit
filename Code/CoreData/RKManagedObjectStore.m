@@ -46,7 +46,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 @synthesize pathToStoreFile = _pathToStoreFile;
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
-@synthesize managedObjectCache = _managedObjectCache;
+//@synthesize managedObjectCache = _managedObjectCache;
 
 + (RKManagedObjectStore*)objectStoreWithStoreFilename:(NSString*)storeFilename {
     return [self objectStoreWithStoreFilename:storeFilename usingSeedDatabaseName:nil managedObjectModel:nil delegate:nil];
@@ -125,8 +125,9 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	_managedObjectModel = nil;
     [_persistentStoreCoordinator release];
 	_persistentStoreCoordinator = nil;
-	[_managedObjectCache release];
-	_managedObjectCache = nil;
+	
+	//[_managedObjectCache release];
+	//_managedObjectCache = nil;
 	
 	[_masterContext release], _masterContext = nil;
 	[_mainThreadContext release], _mainThreadContext = nil;
@@ -138,8 +139,9 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  Performs the save action for the application, which is to send the save:
  message to the application's managed object context.
  */
-- (NSError*)save {
-	NSManagedObjectContext* moc = [self managedObjectContext];
+- (NSError*)save
+{
+	NSManagedObjectContext* moc = _masterContext;
 	NSError *error;
 	@try {
 		if (![moc save:&error]) {
@@ -199,7 +201,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 
 - (NSManagedObjectContext*)newManagedObjectContext
 {
-	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] init];
 	if (![[NSThread currentThread] isMainThread])
 	{
 		[managedObjectContext setParentContext:_masterContext];
@@ -441,7 +443,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
         
 	return object;
 }
-
+/*
 - (NSArray*)objectsForResourcePath:(NSString *)resourcePath {
     NSArray* cachedObjects = nil;
     
@@ -452,5 +454,5 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
     
     return cachedObjects;
 }
-
+*/
 @end
