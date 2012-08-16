@@ -330,40 +330,24 @@
 }
 
 - (void)didFailLoadWithError:(NSError*)error {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-    
-	if (_cachePolicy & RKRequestCachePolicyLoadOnError &&
-		[self.cache hasResponseForRequest:self]) {
-
-		[self didFinishLoad:[self.cache responseForRequest:self]];
-	} else {
-        if ([_delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
+    @autoreleasepool {
+		
+		if ([_delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
             [_delegate request:self didFailLoadWithError:error];
         }
         
         [(NSObject<RKObjectLoaderDelegate>*)_delegate objectLoader:self didFailWithError:error];
         
         [self finalizeLoad:NO error:error];
-    }
-    
-    [pool release];
+		
+	}
 }
 
 // NOTE: We do NOT call super here. We are overloading the default behavior from RKRequest
 - (void)didFinishLoad:(RKResponse*)response {
     NSAssert([NSThread isMainThread], @"RKObjectLoaderDelegate callbacks must occur on the main thread");
 	_response = [response retain];
-
-	if ((_cachePolicy & RKRequestCachePolicyEtag) && [response isNotModified]) {
-		[_response release];
-		_response = nil;
-		_response = [[self.cache responseForRequest:self] retain];
-        [self updateInternalCacheDate];
-	}
-
-	if (![_response wasLoadedFromCache] && [_response isSuccessful] && (_cachePolicy != RKRequestCachePolicyNone)) {
-		[self.cache storeResponse:_response forRequest:self];
-	}
+	
 
     if ([_delegate respondsToSelector:@selector(request:didLoadResponse:)]) {
         [_delegate request:self didLoadResponse:_response];

@@ -139,12 +139,7 @@ static RKObjectManager* sharedManager = nil;
 
 - (RKObjectLoader*)objectLoaderWithResourcePath:(NSString*)resourcePath delegate:(id<RKObjectLoaderDelegate>)delegate {
     RKObjectLoader* objectLoader = nil;
-    Class managedObjectLoaderClass = NSClassFromString(@"RKManagedObjectLoader");
-    if (self.objectStore && managedObjectLoaderClass) {
-        objectLoader = [managedObjectLoaderClass loaderWithResourcePath:resourcePath objectManager:self delegate:delegate];
-    } else {
-        objectLoader = [RKObjectLoader loaderWithResourcePath:resourcePath objectManager:self delegate:delegate];
-    }	
+    objectLoader = [RKManagedObjectLoader loaderWithResourcePath:resourcePath objectManager:self delegate:delegate];
     
 	return objectLoader;
 }
@@ -330,9 +325,6 @@ static RKObjectManager* sharedManager = nil;
 	return loader;
 }
 
-- (RKRequestCache *)requestCache {
-    return self.client.requestCache;
-}
 
 - (RKRequestQueue *)requestQueue {
     return self.client.requestQueue;

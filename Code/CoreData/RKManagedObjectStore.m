@@ -141,7 +141,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  */
 - (NSError*)save
 {
-	NSManagedObjectContext* moc = _masterContext;
+	NSManagedObjectContext* moc = [self managedObjectContext];
 	NSError *error;
 	@try {
 		if (![moc save:&error]) {
@@ -328,11 +328,12 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 		backgroundThreadContext = [self newManagedObjectContext];
 		[threadDictionary setObject:backgroundThreadContext forKey:RKManagedObjectStoreThreadDictionaryContextKey];
 		[backgroundThreadContext release];
-
+		/*
 		[[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(mergeChanges:)
 													 name:NSManagedObjectContextDidSaveNotification
 												   object:backgroundThreadContext];
+		 */
 	}
 	
 	return backgroundThreadContext;
@@ -363,6 +364,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	}
 }
 
+/*
 - (void)mergeChangesOnMainThreadWithNotification:(NSNotification*)notification {
 	assert([NSThread isMainThread]);
 	[_mainThreadContext performSelectorOnMainThread:@selector(mergeChangesFromContextDidSaveNotification:)
@@ -374,6 +376,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	// Merge changes into the main context on the main thread
 	[self performSelectorOnMainThread:@selector(mergeChangesOnMainThreadWithNotification:) withObject:notification waitUntilDone:YES];
 }
+*/
 
 #pragma mark -
 #pragma mark Helpers

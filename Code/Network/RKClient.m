@@ -87,8 +87,7 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
 @synthesize serviceUnavailableAlertTitle = _serviceUnavailableAlertTitle;
 @synthesize serviceUnavailableAlertMessage = _serviceUnavailableAlertMessage;
 @synthesize serviceUnavailableAlertEnabled = _serviceUnavailableAlertEnabled;
-@synthesize requestCache = _requestCache;
-@synthesize cachePolicy = _cachePolicy;
+
 @synthesize requestQueue = _requestQueue;
 @synthesize timeoutInterval = _timeoutInterval;
 
@@ -141,7 +140,6 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
 - (id)initWithBaseURL:(NSString *)baseURL {
     self = [self init];
     if (self) {        
-        self.cachePolicy = RKRequestCachePolicyDefault;
         self.baseURL = baseURL;
         
         if (sharedClient == nil) {
@@ -171,7 +169,7 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
     self.password = nil;
     self.serviceUnavailableAlertTitle = nil;
     self.serviceUnavailableAlertMessage = nil;
-    self.requestCache = nil;
+
     [_HTTPHeaders release];
     [_additionalRootCertificates release];
 
@@ -218,8 +216,7 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
     request.authenticationType = self.authenticationType;
 	request.username = self.username;
 	request.password = self.password;
-	request.cachePolicy = self.cachePolicy;
-    request.cache = self.requestCache;
+
     request.queue = self.requestQueue;
     request.reachabilityObserver = self.reachabilityObserver;
     
@@ -287,11 +284,7 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
     
     // Don't crash if baseURL is nil'd out (i.e. dealloc)
     if (! [newBaseURLString isEqual:[NSNull null]]) {
-        // Configure a cache for the new base URL
-        [_requestCache release];
-        _requestCache = [[RKRequestCache alloc] initWithCachePath:[self cachePath]
-                                                    storagePolicy:RKRequestCacheStoragePolicyPermanently];
-    
+        
         // Determine reachability strategy (if user has not already done so)
         if (self.reachabilityObserver == nil) {
             NSURL *newBaseURL = [NSURL URLWithString:newBaseURLString];
@@ -396,16 +389,6 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
     _awaitingReachabilityDetermination = NO;
     self.requestQueue.suspended = NO;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:RKReachabilityWasDeterminedNotification object:observer];
-}
-
-// deprecated
-- (RKRequestCache *)cache {
-    return _requestCache;
-}
-
-// deprecated
-- (void)setCache:(RKRequestCache *)requestCache {
-    self.requestCache = requestCache;
 }
 
 // deprecated

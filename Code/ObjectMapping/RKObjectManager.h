@@ -19,7 +19,7 @@
 //
 
 #import "Network.h"
-#import "RKObjectLoader.h"
+#import "RKManagedObjectLoader.h"
 #import "RKObjectRouter.h"
 #import "RKObjectMappingProvider.h"
 
@@ -153,11 +153,6 @@ typedef enum {
  */
 @property (nonatomic, readonly) RKRequestQueue *requestQueue;
 
-/**
- The request queue used to dispatch asynchronous requests sent
- through this object manager's underlying client object
- */
-@property (nonatomic, readonly) RKRequestCache *requestCache;
 
 /**
  True when we are in online mode

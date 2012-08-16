@@ -27,7 +27,7 @@
 #import "NSData+MD5.h"
 #import "NSString+MD5.h"
 #import "RKLog.h"
-#import "RKRequestCache.h"
+
 #import "GCOAuth.h"
 #import "NSURL+RestKit.h"
 #import "RKReachabilityObserver.h"
@@ -51,9 +51,6 @@
 @synthesize username = _username;
 @synthesize password = _password;
 @synthesize method = _method;
-@synthesize cachePolicy = _cachePolicy;
-@synthesize cache = _cache;
-@synthesize cacheTimeoutInterval = _cacheTimeoutInterval;
 @synthesize OAuth1ConsumerKey = _OAuth1ConsumerKey;
 @synthesize OAuth1ConsumerSecret = _OAuth1ConsumerSecret;
 @synthesize OAuth1AccessToken = _OAuth1AccessToken;
@@ -78,9 +75,7 @@
 		_URL = [URL retain];
         [self reset];
         _authenticationType = RKRequestAuthenticationTypeNone;
-		_cachePolicy = RKRequestCachePolicyDefault;
-        _cacheTimeoutInterval = 0;
-        _timeoutInterval = 120.0;
+		_timeoutInterval = 120.0;
 	}
 	return self;
 }
@@ -159,8 +154,6 @@
     _username = nil;
     [_password release];
     _password = nil;
-    [_cache release];
-    _cache = nil;    
     [_OAuth1ConsumerKey release];
     _OAuth1ConsumerKey = nil;
     [_OAuth1ConsumerSecret release];
@@ -303,12 +296,6 @@
         [_URLRequest setValue:authorizationString forHTTPHeaderField:@"Authorization"];
     }
     
-    if (self.cachePolicy & RKRequestCachePolicyEtag) {
-        NSString* etag = [self.cache etagForRequest:self];
-        if (etag) {
-            [_URLRequest setValue:etag forHTTPHeaderField:@"If-None-Match"];
-        }
-    }
 }
 
 // Setup the NSURLRequest. The request must be prepared right before dispatching
@@ -390,24 +377,6 @@
     [[NSNotificationCenter defaultCenter] postNotificationName:RKRequestSentNotification object:self userInfo:nil];
 }
 
-- (BOOL)shouldLoadFromCache {
-    // if RKRequestCachePolicyEnabled or if RKRequestCachePolicyTimeout and we are in the timeout
-    if ([self.cache hasResponseForRequest:self]) {
-        if (self.cachePolicy & RKRequestCachePolicyEnabled) {
-            return YES;
-        } else if (self.cachePolicy & RKRequestCachePolicyTimeout) {
-            NSDate* date = [self.cache cacheDateForRequest:self];
-            NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:date];
-            return interval <= self.cacheTimeoutInterval;
-        }
-    }
-    return NO;
-}
-
-- (RKResponse*)loadResponseFromCache {
-    RKLogDebug(@"Found cached content, loading...");
-    return [self.cache responseForRequest:self];
-}
 
 - (BOOL)shouldDispatchRequest {
     if (nil == self.reachabilityObserver || NO == [self.reachabilityObserver isReachabilityDetermined]) {
@@ -420,11 +389,8 @@
 - (void)sendAsynchronously {
     NSAssert(NO == _isLoading || NO == _isLoaded, @"Cannot send a request that is loading or loaded without resetting it first.");
     _sentSynchronously = NO;    
-    if ([self shouldLoadFromCache]) {
-        RKResponse* response = [self loadResponseFromCache];
-        _isLoading = YES;
-        [self didFinishLoad:response];
-    } else if ([self shouldDispatchRequest]) {
+    
+	if ([self shouldDispatchRequest]) {
         [self createTimeoutTimer];
 #if TARGET_OS_IPHONE
         // Background Request Policy support
@@ -464,21 +430,13 @@
 	} else {
         RKLogTrace(@"Declined to dispatch request %@: shared client reported the network is not available.", self);
         
-	    if (_cachePolicy & RKRequestCachePolicyLoadIfOffline &&
-			[self.cache hasResponseForRequest:self]) {
-
-			_isLoading = YES;
-			[self didFinishLoad:[self loadResponseFromCache]];
-
-		} else {
-            RKLogError(@"Failed to send request to %@ due to unreachable network. Reachability observer = %@", [[self URL] absoluteString], self.reachabilityObserver);
-            NSString* errorMessage = [NSString stringWithFormat:@"The client is unable to contact the resource at %@", [[self URL] absoluteString]];
-    		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-    								  errorMessage, NSLocalizedDescriptionKey,
-    								  nil];
-    		NSError* error = [NSError errorWithDomain:RKRestKitErrorDomain code:RKRequestBaseURLOfflineError userInfo:userInfo];
-    		[self didFailLoadWithError:error];
-        }
+	    RKLogError(@"Failed to send request to %@ due to unreachable network. Reachability observer = %@", [[self URL] absoluteString], self.reachabilityObserver);
+		NSString* errorMessage = [NSString stringWithFormat:@"The client is unable to contact the resource at %@", [[self URL] absoluteString]];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+								  errorMessage, NSLocalizedDescriptionKey,
+								  nil];
+		NSError* error = [NSError errorWithDomain:RKRestKitErrorDomain code:RKRequestBaseURLOfflineError userInfo:userInfo];
+		[self didFailLoadWithError:error];
 	}
 }
 
@@ -490,11 +448,7 @@
 	RKResponse* response = nil;
     _sentSynchronously = YES;
 
-	if ([self shouldLoadFromCache]) {
-        response = [self loadResponseFromCache];
-        _isLoading = YES;
-        [self didFinishLoad:response];
-    } else if ([self shouldDispatchRequest]) {
+	if ([self shouldDispatchRequest]) {
         RKLogDebug(@"Sending synchronous %@ request to URL %@.", [self HTTPMethod], [[self URL] absoluteString]);
         [self createTimeoutTimer];
         
@@ -522,20 +476,13 @@
 		}
         
 	} else {
-		if (_cachePolicy & RKRequestCachePolicyLoadIfOffline &&
-			[self.cache hasResponseForRequest:self]) {
-
-			response = [self loadResponseFromCache];
-
-		} else {
-			NSString* errorMessage = [NSString stringWithFormat:@"The client is unable to contact the resource at %@", [[self URL] absoluteString]];
-			NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-									  errorMessage, NSLocalizedDescriptionKey,
-									  nil];
-			error = [NSError errorWithDomain:RKRestKitErrorDomain code:RKRequestBaseURLOfflineError userInfo:userInfo];
-			[self didFailLoadWithError:error];
-			response = [[[RKResponse alloc] initWithSynchronousRequest:self URLResponse:URLResponse body:payload error:error] autorelease];
-		}
+		NSString* errorMessage = [NSString stringWithFormat:@"The client is unable to contact the resource at %@", [[self URL] absoluteString]];
+		NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+								  errorMessage, NSLocalizedDescriptionKey,
+								  nil];
+		error = [NSError errorWithDomain:RKRestKitErrorDomain code:RKRequestBaseURLOfflineError userInfo:userInfo];
+		[self didFailLoadWithError:error];
+		response = [[[RKResponse alloc] initWithSynchronousRequest:self URLResponse:URLResponse body:payload error:error] autorelease];
 	}
 
 	return response;
@@ -566,28 +513,16 @@
 }
 
 - (void)didFailLoadWithError:(NSError*)error {
-	if (_cachePolicy & RKRequestCachePolicyLoadOnError &&
-		[self.cache hasResponseForRequest:self]) {
-
-		[self didFinishLoad:[self loadResponseFromCache]];
-	} else {
-		_isLoading = NO;
-
-		if ([_delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
-			[_delegate request:self didFailLoadWithError:error];
-		}
-        
-        NSDictionary* userInfo = [NSDictionary dictionaryWithObject:error forKey:RKRequestDidFailWithErrorNotificationUserInfoErrorKey];
-		[[NSNotificationCenter defaultCenter] postNotificationName:RKRequestDidFailWithErrorNotification 
-                                                            object:self 
-                                                          userInfo:userInfo];
+	_isLoading = NO;
+	
+	if ([_delegate respondsToSelector:@selector(request:didFailLoadWithError:)]) {
+		[_delegate request:self didFailLoadWithError:error];
 	}
-}
-
-- (void)updateInternalCacheDate {
-    NSDate* date = [NSDate date];
-    RKLogInfo(@"Updating cache date for request %@ to %@", self, date);
-    [self.cache setCacheDate:date forRequest:self];
+	
+	NSDictionary* userInfo = [NSDictionary dictionaryWithObject:error forKey:RKRequestDidFailWithErrorNotificationUserInfoErrorKey];
+	[[NSNotificationCenter defaultCenter] postNotificationName:RKRequestDidFailWithErrorNotification
+														object:self
+													  userInfo:userInfo];
 }
 
 - (void)didFinishLoad:(RKResponse*)response {
@@ -598,16 +533,7 @@
     RKLogDebug(@"Body: %@", [response bodyAsString]);
 
 	RKResponse* finalResponse = response;
-
-	if ((_cachePolicy & RKRequestCachePolicyEtag) && [response isNotModified]) {
-		finalResponse = [self loadResponseFromCache];
-        [self updateInternalCacheDate];
-	}
-
-	if (![response wasLoadedFromCache] && [response isSuccessful] && (_cachePolicy != RKRequestCachePolicyNone)) {
-		[self.cache storeResponse:response forRequest:self];
-	}
-
+	
 	if ([_delegate respondsToSelector:@selector(request:didLoadResponse:)]) {
 		[_delegate request:self didLoadResponse:finalResponse];
 	}

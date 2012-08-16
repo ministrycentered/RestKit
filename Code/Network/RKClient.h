@@ -23,7 +23,7 @@
 #import "RKResponse.h"
 #import "NSDictionary+RKRequestSerialization.h"
 #import "RKReachabilityObserver.h"
-#import "RKRequestCache.h"
+
 #import "RKRequestQueue.h"
 
 /////////////////////////////////////////////////////////////////////////
@@ -169,9 +169,8 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
 	NSString *_serviceUnavailableAlertMessage;
 	BOOL _serviceUnavailableAlertEnabled;
     RKRequestQueue *_requestQueue;
-	RKRequestCache *_requestCache;
-	RKRequestCachePolicy _cachePolicy;
-    NSMutableSet *_additionalRootCertificates;
+	
+	NSMutableSet *_additionalRootCertificates;
     BOOL _disableCertificateValidation;
     
     // Queue suspension flags
@@ -413,33 +412,7 @@ NSString *RKPathAppendQueryParams(NSString *resourcePath, NSDictionary *queryPar
  */
 @property(nonatomic, assign) BOOL serviceUnavailableAlertEnabled;
 
-/////////////////////////////////////////////////////////////////////////
-/// @name Cacheing
-/////////////////////////////////////////////////////////////////////////
 
-/**
- An instance of the request cache used to store/load cacheable responses for requests
- sent through this client
- */
-@property (nonatomic, retain) RKRequestCache *cache DEPRECATED_ATTRIBUTE;
-
-/**
- An instance of the request cache used to store/load cacheable responses for requests
- sent through this client
- */
-@property (nonatomic, retain) RKRequestCache *requestCache;
-
-/**
- The default cache policy to apply for all requests sent through this client
- 
- @see RKRequestCache
- */
-@property (nonatomic, assign) RKRequestCachePolicy cachePolicy;
-
-/**
- The path used to store response data for this client's request cache
- */
-@property (nonatomic, readonly) NSString *cachePath;
 
 /////////////////////////////////////////////////////////////////////////
 /// @name Shared Client Instance

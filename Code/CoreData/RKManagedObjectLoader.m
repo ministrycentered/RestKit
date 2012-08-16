@@ -107,15 +107,15 @@
         RKLogDebug(@"Skipping cleanup of objects via managed object cache: only used for GET requests.");
         return;
     }
-    /*
+    
     if ([self.URL isKindOfClass:[RKURL class]]) {
-        RKURL* rkURL = (RKURL*)self.URL;
+        //RKURL* rkURL = (RKURL*)self.URL;
         
-        NSArray* results = [result asCollection];
-        NSArray* cachedObjects = [self.objectStore objectsForResourcePath:rkURL.resourcePath];
-        NSObject<RKManagedObjectCache>* managedObjectCache = self.objectStore.managedObjectCache;
-        BOOL queryForDeletion = [managedObjectCache respondsToSelector:@selector(shouldDeleteOrphanedObject:)];
-      
+        //NSArray* results = [result asCollection];
+        //NSArray* cachedObjects = [self.objectStore objectsForResourcePath:rkURL.resourcePath];
+        //NSObject<RKManagedObjectCache>* managedObjectCache = self.objectStore.managedObjectCache;
+        //BOOL queryForDeletion = [managedObjectCache respondsToSelector:@selector(shouldDeleteOrphanedObject:)];
+		/*
         for (id object in cachedObjects) {
             if (NO == [results containsObject:object]) {
               if (queryForDeletion && [managedObjectCache shouldDeleteOrphanedObject:object] == NO)
@@ -129,10 +129,11 @@
               }
             }
         }
+		 */
     } else {
         RKLogWarning(@"Unable to perform cleanup of server-side object deletions: unable to determine resource path.");
     }
-	*/
+	
 }
 
 // NOTE: We are on the background thread here, be mindful of Core Data's threading needs
@@ -146,7 +147,7 @@
     
     // If the response was successful, save the store...
     if ([self.response isSuccessful]) {
-        [self deleteCachedObjectsMissingFromResult:result];
+        //[self deleteCachedObjectsMissingFromResult:result];
         NSError* error = [self.objectStore save];
         if (error) {
             RKLogError(@"Failed to save managed object context after mapping completed: %@", [error localizedDescription]);

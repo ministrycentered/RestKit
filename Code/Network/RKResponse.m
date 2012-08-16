@@ -28,9 +28,6 @@
 #undef RKLogComponent
 #define RKLogComponent lcl_cRestKitNetwork
 
-extern NSString* cacheResponseCodeKey;
-extern NSString* cacheMIMETypeKey;
-extern NSString* cacheURLKey;
 
 @implementation RKResponse
 
@@ -281,31 +278,19 @@ extern NSString* cacheURLKey;
 }
 
 - (NSURL*)URL {
-    if ([self wasLoadedFromCache]) {
-        return [NSURL URLWithString:[_responseHeaders valueForKey:cacheURLKey]];
-    }
-	return [_httpURLResponse URL];
+    return [_httpURLResponse URL];
 }
 
 - (NSString*)MIMEType {
-    if ([self wasLoadedFromCache]) {
-        return [_responseHeaders valueForKey:cacheMIMETypeKey];
-    }
-	return [_httpURLResponse MIMEType];
+    return [_httpURLResponse MIMEType];
 }
 
 - (NSInteger)statusCode {
-    if ([self wasLoadedFromCache]) {
-        return [[_responseHeaders valueForKey:cacheResponseCodeKey] intValue];
-    }
     return ([_httpURLResponse respondsToSelector:@selector(statusCode)] ? [_httpURLResponse statusCode] : 200);
 }
 
 - (NSDictionary*)allHeaderFields {
-	if ([self wasLoadedFromCache]) {
-		return _responseHeaders;
-	}
-    return ([_httpURLResponse respondsToSelector:@selector(allHeaderFields)] ? [_httpURLResponse allHeaderFields] : nil);
+	return ([_httpURLResponse respondsToSelector:@selector(allHeaderFields)] ? [_httpURLResponse allHeaderFields] : nil);
 }
 
 - (NSArray*)cookies {

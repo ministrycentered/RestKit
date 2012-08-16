@@ -54,8 +54,6 @@
 		25160DFA145650490060A5C5 /* RKRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6C145650490060A5C5 /* RKRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25160DFB145650490060A5C5 /* RKRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D6D145650490060A5C5 /* RKRequest.m */; };
 		25160DFC145650490060A5C5 /* RKRequest_Internals.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6E145650490060A5C5 /* RKRequest_Internals.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		25160DFD145650490060A5C5 /* RKRequestCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6F145650490060A5C5 /* RKRequestCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		25160DFE145650490060A5C5 /* RKRequestCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D70145650490060A5C5 /* RKRequestCache.m */; };
 		25160DFF145650490060A5C5 /* RKRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D71145650490060A5C5 /* RKRequestQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25160E00145650490060A5C5 /* RKRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D72145650490060A5C5 /* RKRequestQueue.m */; };
 		25160E01145650490060A5C5 /* RKRequestSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D73145650490060A5C5 /* RKRequestSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -197,8 +195,6 @@
 		25160F35145655BA0060A5C5 /* RKRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6C145650490060A5C5 /* RKRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25160F36145655BA0060A5C5 /* RKRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D6D145650490060A5C5 /* RKRequest.m */; };
 		25160F37145655BA0060A5C5 /* RKRequest_Internals.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6E145650490060A5C5 /* RKRequest_Internals.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		25160F38145655BA0060A5C5 /* RKRequestCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D6F145650490060A5C5 /* RKRequestCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		25160F39145655BA0060A5C5 /* RKRequestCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D70145650490060A5C5 /* RKRequestCache.m */; };
 		25160F3A145655BA0060A5C5 /* RKRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D71145650490060A5C5 /* RKRequestQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		25160F3B145655BA0060A5C5 /* RKRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 25160D72145650490060A5C5 /* RKRequestQueue.m */; };
 		25160F3C145655BA0060A5C5 /* RKRequestSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 25160D73145650490060A5C5 /* RKRequestSerializable.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -597,8 +593,6 @@
 		25160D6C145650490060A5C5 /* RKRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKRequest.h; sourceTree = "<group>"; };
 		25160D6D145650490060A5C5 /* RKRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKRequest.m; sourceTree = "<group>"; };
 		25160D6E145650490060A5C5 /* RKRequest_Internals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKRequest_Internals.h; sourceTree = "<group>"; };
-		25160D6F145650490060A5C5 /* RKRequestCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKRequestCache.h; sourceTree = "<group>"; };
-		25160D70145650490060A5C5 /* RKRequestCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKRequestCache.m; sourceTree = "<group>"; };
 		25160D71145650490060A5C5 /* RKRequestQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKRequestQueue.h; sourceTree = "<group>"; };
 		25160D72145650490060A5C5 /* RKRequestQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RKRequestQueue.m; sourceTree = "<group>"; };
 		25160D73145650490060A5C5 /* RKRequestSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RKRequestSerializable.h; sourceTree = "<group>"; };
@@ -1036,8 +1030,6 @@
 				25160D6C145650490060A5C5 /* RKRequest.h */,
 				25160D6D145650490060A5C5 /* RKRequest.m */,
 				25160D6E145650490060A5C5 /* RKRequest_Internals.h */,
-				25160D6F145650490060A5C5 /* RKRequestCache.h */,
-				25160D70145650490060A5C5 /* RKRequestCache.m */,
 				25160D71145650490060A5C5 /* RKRequestQueue.h */,
 				25160D72145650490060A5C5 /* RKRequestQueue.m */,
 				25160D73145650490060A5C5 /* RKRequestSerializable.h */,
@@ -1600,7 +1592,6 @@
 				25160DF8145650490060A5C5 /* RKReachabilityObserver.h in Headers */,
 				25160DFA145650490060A5C5 /* RKRequest.h in Headers */,
 				25160DFC145650490060A5C5 /* RKRequest_Internals.h in Headers */,
-				25160DFD145650490060A5C5 /* RKRequestCache.h in Headers */,
 				25160DFF145650490060A5C5 /* RKRequestQueue.h in Headers */,
 				25160E01145650490060A5C5 /* RKRequestSerializable.h in Headers */,
 				25160E02145650490060A5C5 /* RKRequestSerialization.h in Headers */,
@@ -1688,7 +1679,6 @@
 				25160F33145655BA0060A5C5 /* RKReachabilityObserver.h in Headers */,
 				25160F35145655BA0060A5C5 /* RKRequest.h in Headers */,
 				25160F37145655BA0060A5C5 /* RKRequest_Internals.h in Headers */,
-				25160F38145655BA0060A5C5 /* RKRequestCache.h in Headers */,
 				25160F3A145655BA0060A5C5 /* RKRequestQueue.h in Headers */,
 				25160F3C145655BA0060A5C5 /* RKRequestSerializable.h in Headers */,
 				25160F3D145655BA0060A5C5 /* RKRequestSerialization.h in Headers */,
@@ -2036,7 +2026,6 @@
 				25160DF7145650490060A5C5 /* RKParamsAttachment.m in Sources */,
 				25160DF9145650490060A5C5 /* RKReachabilityObserver.m in Sources */,
 				25160DFB145650490060A5C5 /* RKRequest.m in Sources */,
-				25160DFE145650490060A5C5 /* RKRequestCache.m in Sources */,
 				25160E00145650490060A5C5 /* RKRequestQueue.m in Sources */,
 				25160E03145650490060A5C5 /* RKRequestSerialization.m in Sources */,
 				25160E05145650490060A5C5 /* RKResponse.m in Sources */,
@@ -2173,7 +2162,6 @@
 				25160F32145655BA0060A5C5 /* RKParamsAttachment.m in Sources */,
 				25160F34145655BA0060A5C5 /* RKReachabilityObserver.m in Sources */,
 				25160F36145655BA0060A5C5 /* RKRequest.m in Sources */,
-				25160F39145655BA0060A5C5 /* RKRequestCache.m in Sources */,
 				25160F3B145655BA0060A5C5 /* RKRequestQueue.m in Sources */,
 				25160F3E145655BA0060A5C5 /* RKRequestSerialization.m in Sources */,
 				25160F40145655BA0060A5C5 /* RKResponse.m in Sources */,

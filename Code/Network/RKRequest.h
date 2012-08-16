@@ -26,7 +26,6 @@
 #import <CoreData/CoreData.h>
 #import "RKRequestSerializable.h"
 
-@class RKRequestCache;
 
 /**
  * HTTP methods for requests
@@ -39,30 +38,6 @@ typedef enum RKRequestMethod {
     RKRequestMethodHEAD
 } RKRequestMethod;
 
-/**
- * Cache policy for determining how to use RKCache
- */
-typedef enum {
-	// Never use the cache
-    RKRequestCachePolicyNone = 0,
-
-	// Load from the cache when we are offline
-    RKRequestCachePolicyLoadIfOffline = 1 << 0,
-
-	// Load from the cache if we encounter an error
-    RKRequestCachePolicyLoadOnError = 1 << 1,
-
-	// Load from the cache if we have data stored and the server returns a 304 (not modified) response
-    RKRequestCachePolicyEtag = 1 << 2,
-    
-    // Load from the cache if we have data stored
-    RKRequestCachePolicyEnabled = 1 << 3,
-    
-    // Load from the cache if we are within the timeout window
-    RKRequestCachePolicyTimeout = 1 << 4,
-
-    RKRequestCachePolicyDefault = RKRequestCachePolicyEtag | RKRequestCachePolicyTimeout
-} RKRequestCachePolicy;
 
 /**
  * Background Request Policy
@@ -115,10 +90,8 @@ typedef enum {
 	RKRequestMethod _method;
 	BOOL _isLoading;
 	BOOL _isLoaded;
-	RKRequestCachePolicy _cachePolicy;
-    BOOL _sentSynchronously;
-    RKRequestCache *_cache;
-    NSTimeInterval _cacheTimeoutInterval;
+	BOOL _sentSynchronously;
+    
     RKRequestQueue *_queue;
     RKReachabilityObserver *_reachabilityObserver;
     NSTimer *_timeoutTimer;
@@ -271,39 +244,7 @@ typedef enum {
  */
 @property(nonatomic,retain) NSString *OAuth2RefreshToken;
 
-/////////////////////////////////////////////////////////////////////////
-/// @name Cacheing
-/////////////////////////////////////////////////////////////////////////
 
-/**
- Returns the cache key for getting/setting the cache entry for this request
- in the cache.
- 
- The cacheKey is an MD5 value computed by hashing a combination of the destination
- URL, the HTTP verb, and the request body (if possible)
- */
-@property (nonatomic, readonly) NSString *cacheKey;
-
-/**
- The cache policy used when storing this request into the request cache
- */
-@property (nonatomic, assign) RKRequestCachePolicy cachePolicy;
-
-/**
- The request cache to store and load responses for this request
- 
- Generally configured by the RKClient instance that minted this request
- */
-@property (nonatomic, retain) RKRequestCache *cache;
-
-/**
- Returns YES if the request is cacheable
- 
- All requets are considered cacheable unless:
-    1) The method is DELETE
-    2) The request body is a stream (i.e. using RKParams)
- */
-- (BOOL)isCacheable;
 
 /**
  * The HTTP body as a NSData used for this request
@@ -315,12 +256,7 @@ typedef enum {
  */
 @property (nonatomic, retain) NSString *HTTPBodyString;
 
-/**
- * The timeout interval within which the request should not be sent
- * and the cached response should be used. Used if the cache policy
- * includes RKRequestCachePolicyTimeout
- */
-@property (nonatomic, assign) NSTimeInterval cacheTimeoutInterval;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
