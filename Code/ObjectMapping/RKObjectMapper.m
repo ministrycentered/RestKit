@@ -22,6 +22,8 @@
 #import "RKObjectMapperError.h"
 #import "RKObjectMapper_Private.h"
 
+#import "PCOManagedObjectMappingOperation.h"
+
 // Set Logging Component
 #undef RKLogComponent
 #define RKLogComponent lcl_cRestKitObjectMapping
@@ -34,17 +36,18 @@
 @synthesize mappingProvider = _mappingProvider;
 @synthesize errors = _errors;
 
-+ (id)mapperWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider {
-    return [[[self alloc] initWithObject:object mappingProvider:mappingProvider] autorelease];
++ (id)mapperWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider inContext:(NSManagedObjectContext *)context {
+    return [[[self alloc] initWithObject:object mappingProvider:mappingProvider inContext:context] autorelease];
 }
 
-- (id)initWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider {
+- (id)initWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider inContext:(NSManagedObjectContext *)context {
     self = [super init];
     if (self) {
         _sourceObject = [object retain];
         _mappingProvider = mappingProvider;
         _errors = [NSMutableArray new];
         _operationQueue = [RKMappingOperationQueue new];
+		_backgroundManagedObjectContext = [context retain];
     }
     
     return self;
@@ -117,11 +120,11 @@
     
     if (self.targetObject) {
         destinationObject = self.targetObject;
-        RKObjectMapping* objectMapping = nil;
+        PCOManagedObjectMapping* objectMapping = nil;
         if ([mapping isKindOfClass:[RKDynamicObjectMapping class]]) {
             objectMapping = [(RKDynamicObjectMapping*)mapping objectMappingForDictionary:mappableObject];
-        } else if ([mapping isKindOfClass:[RKObjectMapping class]]) {
-            objectMapping = (RKObjectMapping*)mapping;
+        } else if ([mapping isKindOfClass:[PCOManagedObjectMapping class]]) {
+            objectMapping = (PCOManagedObjectMapping*)mapping;
         } else {
             NSAssert(objectMapping, @"Encountered unknown mapping type '%@'", NSStringFromClass([mapping class]));
         }        
@@ -212,7 +215,7 @@
     
     NSError* error = nil;
     
-    RKObjectMappingOperation* operation = [RKObjectMappingOperation mappingOperationFromObject:mappableObject 
+    PCOManagedObjectMappingOperation* operation = [PCOManagedObjectMappingOperation mappingOperationFromObject:mappableObject
                                                                                       toObject:destinationObject 
                                                                                    withMapping:mapping];    
     operation.queue = _operationQueue;
@@ -233,20 +236,20 @@
 
 - (id)objectWithMapping:(id<RKObjectMappingDefinition>)mapping andData:(id)mappableData {
     NSAssert([mapping conformsToProtocol:@protocol(RKObjectMappingDefinition)], @"Expected an object implementing RKObjectMappingDefinition");
-    RKObjectMapping* objectMapping = nil;
+    PCOManagedObjectMapping* objectMapping = nil;
     if ([mapping isKindOfClass:[RKDynamicObjectMapping class]]) {
         objectMapping = [(RKDynamicObjectMapping*)mapping objectMappingForDictionary:mappableData];
         if (! objectMapping) {
             RKLogDebug(@"Mapping %@ declined mapping for data %@: returned nil objectMapping", mapping, mappableData);
         }
-    } else if ([mapping isKindOfClass:[RKObjectMapping class]]) {
-        objectMapping = (RKObjectMapping*)mapping;
+    } else if ([mapping isKindOfClass:[PCOManagedObjectMapping class]]) {
+        objectMapping = (PCOManagedObjectMapping*)mapping;
     } else {
         //NSAssert(objectMapping, @"Encountered unknown mapping type '%@'", NSStringFromClass([mapping class]));
     }
     
     if (objectMapping) {
-        return [objectMapping mappableObjectForData:mappableData];
+        return [objectMapping mappableObjectForData:mappableData inContext:_backgroundManagedObjectContext];
     }
     
     return nil;

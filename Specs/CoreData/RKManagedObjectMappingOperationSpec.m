@@ -19,7 +19,7 @@
 //
 
 #import "RKSpecEnvironment.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKManagedObjectMappingOperation.h"
 #import "RKCat.h"
 #import "RKHuman.h"
@@ -36,7 +36,7 @@
 
 - (void)testShouldOverloadInitializationOfRKObjectMappingOperationToReturnInstancesOfRKManagedObjectMappingOperationWhenAppropriate {
     RKSpecNewManagedObjectStore();    
-    RKManagedObjectMapping* managedMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* managedMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     NSDictionary* sourceObject = [NSDictionary dictionary];
     RKHuman* human = [RKHuman createEntity];
     RKObjectMappingOperation* operation = [RKObjectMappingOperation mappingOperationFromObject:sourceObject toObject:human withMapping:managedMapping];
@@ -44,7 +44,7 @@
 }
 
 - (void)testShouldOverloadInitializationOfRKObjectMappingOperationButReturnUnmanagedMappingOperationWhenAppropriate {
-    RKObjectMapping* vanillaMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* vanillaMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     NSDictionary* sourceObject = [NSDictionary dictionary];
     NSMutableDictionary* destinationObject = [NSMutableDictionary dictionary];
     RKObjectMappingOperation* operation = [RKObjectMappingOperation mappingOperationFromObject:sourceObject toObject:destinationObject withMapping:vanillaMapping];
@@ -54,11 +54,11 @@
 - (void)testShouldConnectRelationshipsByPrimaryKey {
     RKManagedObjectStore* objectStore = RKSpecNewManagedObjectStore();
     
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     catMapping.primaryKeyAttribute = @"railsID";
     [catMapping mapAttributes:@"name", nil];
     
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     humanMapping.primaryKeyAttribute = @"railsID";
     [humanMapping mapAttributes:@"name", @"favoriteCatID", nil];
     [humanMapping hasOne:@"favoriteCat" withMapping:catMapping];
@@ -83,11 +83,11 @@
 - (void)testShouldConnectRelationshipsByPrimaryKeyWithDifferentSourceAndDestinationKeyPaths {
     RKManagedObjectStore* objectStore = RKSpecNewManagedObjectStore();
     
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     catMapping.primaryKeyAttribute = @"railsID";
     [catMapping mapAttributes:@"name", nil];
     
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     humanMapping.primaryKeyAttribute = @"railsID";
     [humanMapping mapAttributes:@"name", @"favoriteCatID", nil];
     [humanMapping mapKeyPath:@"favorite_cat" toRelationship:@"favoriteCat" withMapping:catMapping];
@@ -110,11 +110,11 @@
 }
 
 - (void)testShouldLoadNestedHasManyRelationship {  
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     catMapping.primaryKeyAttribute = @"railsID";
     [catMapping mapAttributes:@"name", nil];
     
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     humanMapping.primaryKeyAttribute = @"railsID";
     [humanMapping mapAttributes:@"name", @"favoriteCatID", nil];
     [humanMapping hasMany:@"cats" withMapping:catMapping];
@@ -131,10 +131,10 @@
 - (void)testShouldMapNullToAHasManyRelationship {
     RKLogConfigureByName("RestKit/ObjectMapping", RKLogLevelTrace);
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     [catMapping mapAttributes:@"name", nil];
     
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     [humanMapping mapAttributes:@"name", @"favoriteCatID", nil];
     [humanMapping hasMany:@"cats" withMapping:catMapping];
     
@@ -149,10 +149,10 @@
 
 - (void)testShouldLoadNestedHasManyRelationshipWithoutABackingClass {
     RKManagedObjectStore* objectStore = RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* cloudMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKCloud"];
+    PCOManagedObjectMapping* cloudMapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKCloud"];
     [cloudMapping mapAttributes:@"name", nil];
     
-    RKManagedObjectMapping* stormMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKStorm"];
+    PCOManagedObjectMapping* stormMapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKStorm"];
     [stormMapping mapAttributes:@"name", @"favoriteCatID", nil];
     [stormMapping hasMany:@"clouds" withMapping:cloudMapping];
     
@@ -168,11 +168,11 @@
 
 - (void)testShouldConnectManyToManyRelationships {
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* childMapping = [RKManagedObjectMapping mappingForClass:[RKChild class]];
+    PCOManagedObjectMapping* childMapping = [PCOManagedObjectMapping mappingForClass:[RKChild class]];
     childMapping.primaryKeyAttribute = @"railsID";
     [childMapping mapAttributes:@"name", nil];
 
-    RKManagedObjectMapping* parentMapping = [RKManagedObjectMapping mappingForClass:[RKParent class]];
+    PCOManagedObjectMapping* parentMapping = [PCOManagedObjectMapping mappingForClass:[RKParent class]];
     parentMapping.primaryKeyAttribute = @"railsID";
     [parentMapping mapAttributes:@"name", @"age", nil];
     [parentMapping hasMany:@"children" withMapping:childMapping];
@@ -196,11 +196,11 @@
 
 - (void)testShouldConnectRelationshipsByPrimaryKeyRegardlessOfOrder {
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* parentMapping = [RKManagedObjectMapping mappingForClass:[RKParent class]];
+    PCOManagedObjectMapping* parentMapping = [PCOManagedObjectMapping mappingForClass:[RKParent class]];
     [parentMapping mapAttributes:@"parentID", nil];
     parentMapping.primaryKeyAttribute = @"parentID";
     
-    RKManagedObjectMapping* childMapping = [RKManagedObjectMapping mappingForClass:[RKChild class]];
+    PCOManagedObjectMapping* childMapping = [PCOManagedObjectMapping mappingForClass:[RKChild class]];
     [childMapping mapAttributes:@"fatherID", nil];
     [childMapping mapRelationship:@"father" withMapping:parentMapping];
     [childMapping connectRelationship:@"father" withObjectForPrimaryKeyAttribute:@"fatherID"];    

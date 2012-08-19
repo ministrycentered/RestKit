@@ -71,7 +71,7 @@
 @implementation RKObjectMappingOperationSpec
 
 - (void)testShouldNotUpdateEqualURLProperties {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"url", nil];
     NSURL* url1 = [NSURL URLWithString:@"http://www.restkit.org"];
     NSURL* url2 = [NSURL URLWithString:@"http://www.restkit.org"];
@@ -88,7 +88,7 @@
 }
 
 - (void)testShouldSuccessfullyMapBoolsToStrings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"boolString", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -103,7 +103,7 @@
 }
 
 - (void)testShouldSuccessfullyMapTrueBoolsToNSNumbers {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"boolNumber", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -118,7 +118,7 @@
 }
 
 - (void)testShouldSuccessfullyMapFalseBoolsToNSNumbers {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"boolNumber", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -133,7 +133,7 @@
 }
 
 - (void)testShouldSuccessfullyMapNumbersToStrings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapKeyPath:@"number" toAttribute:@"boolString"];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -148,7 +148,7 @@
 }
 
 - (void)testShouldSuccessfullyMapArraysToOrderedSets {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapKeyPath:@"numbers" toAttribute:@"orderedSet"];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -164,7 +164,7 @@
 }
 
 - (void)testShouldSuccessfullyMapOrderedSetsToArrays {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapKeyPath:@"orderedSet" toAttribute:@"array"];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     
@@ -180,7 +180,7 @@
 }
 
 - (void)testShouldFailTheMappingOperationIfKeyValueValidationSetsAnError {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"boolString", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     NSDictionary* dictionary = [NSDictionary dictionaryWithObject:@"FAIL" forKey:@"boolString"];
@@ -193,7 +193,7 @@
 }
 
 - (void)testShouldNotSetTheAttributeIfKeyValueValidationReturnsNo {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"boolString", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     object.boolString = @"should not change";
@@ -209,7 +209,7 @@
 #pragma mark - TimeZone Handling
 
 - (void)testShouldMapAUTCDateWithoutChangingTheTimeZone {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"date", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     NSDictionary* dictionary = [NSDictionary dictionaryWithObject:@"2011-07-07T04:35:28Z" forKey:@"date"];
@@ -223,7 +223,7 @@
 }
 
 - (void)testShouldMapASimpleDateStringAppropriately {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"date", nil];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
     NSDictionary* dictionary = [NSDictionary dictionaryWithObject:@"08/09/2011" forKey:@"date"];
@@ -241,7 +241,7 @@
     NSDateFormatter *dateFormatter = [[NSDateFormatter new] autorelease];
     dateFormatter.dateFormat = @"MM-dd-yyyy";
     dateFormatter.timeZone = EDTTimeZone;
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapAttributes:@"date", nil];
     mapping.dateFormatters = [NSArray arrayWithObject:dateFormatter];
     TestMappable* object = [[[TestMappable alloc] init] autorelease];
@@ -258,7 +258,7 @@
 
 - (void)testShouldMapADateToAStringUsingThePreferredDateFormatter {
     RKLogConfigureByName("RestKit/ObjectMapping", RKLogLevelTrace);
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[TestMappable class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[TestMappable class]];
     [mapping mapKeyPath:@"date" toAttribute:@"boolString"];
     NSDateFormatter *dateFormatter = [[NSDateFormatter new] autorelease];
     dateFormatter.dateFormat = @"MM-dd-yyyy";
@@ -278,9 +278,9 @@
     // Create a dictionary with a dictionary containing an array
     // Use keyPath to traverse to the collection and target a hasMany
     id data = RKSpecParseFixture(@"ArrayOfNestedDictionaries.json");
-    RKObjectMapping *objectMapping = [RKObjectMapping mappingForClass:[RKMappableObject class]];
+    PCOManagedObjectMapping *objectMapping = [PCOManagedObjectMapping mappingForClass:[RKMappableObject class]];
     [objectMapping mapKeyPath:@"name" toAttribute:@"stringTest"];
-    RKObjectMapping *relationshipMapping = [RKObjectMapping mappingForClass:[RKMappableAssociation class]];
+    PCOManagedObjectMapping *relationshipMapping = [PCOManagedObjectMapping mappingForClass:[RKMappableAssociation class]];
     [relationshipMapping mapKeyPath:@"title" toAttribute:@"testString"];
     [objectMapping mapKeyPath:@"mediaGroups.contents" toRelationship:@"hasMany" withMapping:relationshipMapping];
     RKMappableObject *targetObject = [[RKMappableObject new] autorelease];    

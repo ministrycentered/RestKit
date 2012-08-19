@@ -229,7 +229,7 @@
     RKRequestQueue *queue = [RKRequestQueue requestQueue];
     RKObjectManager *objectManager = RKSpecNewObjectManager();
     RKSpecResponseLoader *loader = [RKSpecResponseLoader responseLoader];
-    RKObjectLoader *objectLoader = [RKObjectLoader loaderWithResourcePath:@"/403" objectManager:objectManager delegate:loader];
+    PCOManagedObjectLoader *objectLoader = [PCOManagedObjectLoader loaderWithResourcePath:@"/403" objectManager:objectManager delegate:loader];
     [queue addRequest:(RKRequest *)objectLoader];
     [queue start];
     [loader waitForResponse];

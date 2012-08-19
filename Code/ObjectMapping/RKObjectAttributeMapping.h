@@ -37,11 +37,11 @@
 /**
  Returns YES if this attribute mapping targets the key of a nested dictionary.
  
- When an object mapping is configured to target mapping of nested content via [RKObjectMapping mapKeyOfNestedDictionaryToAttribute:], a special attribute mapping is defined that targets
+ When an object mapping is configured to target mapping of nested content via [PCOManagedObjectMapping mapKeyOfNestedDictionaryToAttribute:], a special attribute mapping is defined that targets
  the key of the nested dictionary rather than a value within in. This method will return YES if
  this attribute mapping is configured in such a way.
  
- @see [RKObjectMapping mapKeyOfNestedDictionaryToAttribute:]
+ @see [PCOManagedObjectMapping mapKeyOfNestedDictionaryToAttribute:]
  @return YES if this attribute mapping targets a nesting key path
  */
 - (BOOL)isMappingForKeyOfNestedDictionary;

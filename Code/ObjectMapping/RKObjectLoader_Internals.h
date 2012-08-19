@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface RKObjectLoader (Internals) <RKObjectMapperDelegate>
+@interface PCOManagedObjectLoader (Internals) <RKObjectMapperDelegate>
 
 @property (nonatomic, readonly) RKClient* client;
 

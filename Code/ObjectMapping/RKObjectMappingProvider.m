@@ -55,28 +55,28 @@
     return [_mappingsByKeyPath objectForKey:keyPath];
 }
 
-- (void)setSerializationMapping:(RKObjectMapping *)mapping forClass:(Class)objectClass {
+- (void)setSerializationMapping:(PCOManagedObjectMapping *)mapping forClass:(Class)objectClass {
     [_serializationMappings setValue:mapping forKey:NSStringFromClass(objectClass)];
 }
 
-- (RKObjectMapping*)serializationMappingForClass:(Class)objectClass {
-    return (RKObjectMapping *)[_serializationMappings objectForKey:NSStringFromClass(objectClass)];
+- (PCOManagedObjectMapping*)serializationMappingForClass:(Class)objectClass {
+    return (PCOManagedObjectMapping *)[_serializationMappings objectForKey:NSStringFromClass(objectClass)];
 }
 
 - (NSDictionary*)objectMappingsByKeyPath {
     return _mappingsByKeyPath;
 }
 
-- (void)registerObjectMapping:(RKObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath {
+- (void)registerObjectMapping:(PCOManagedObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath {
     // TODO: Should generate logs
     objectMapping.rootKeyPath = keyPath;
     [self setMapping:objectMapping forKeyPath:keyPath];
-    RKObjectMapping* inverseMapping = [objectMapping inverseMapping];
+    PCOManagedObjectMapping* inverseMapping = [objectMapping inverseMapping];
     inverseMapping.rootKeyPath = keyPath;
     [self setSerializationMapping:inverseMapping forClass:objectMapping.objectClass];
 }
 
-- (void)addObjectMapping:(RKObjectMapping *)objectMapping {
+- (void)addObjectMapping:(PCOManagedObjectMapping *)objectMapping {
     [_objectMappings addObject:objectMapping];
 }
 
@@ -94,7 +94,7 @@
     return [NSArray arrayWithArray:mappings];
 }
 
-- (RKObjectMapping *)objectMappingForClass:(Class)theClass {
+- (PCOManagedObjectMapping *)objectMappingForClass:(Class)theClass {
     NSArray* objectMappings = [self objectMappingsForClass:theClass];
     return ([objectMappings count] > 0) ? [objectMappings objectAtIndex:0] : nil;
 }
@@ -105,11 +105,11 @@
     return [self objectMappingProvider];
 }
 
-- (RKObjectMapping *)mappingForKeyPath:(NSString *)keyPath {
-    return (RKObjectMapping *) [self objectMappingForKeyPath:keyPath];
+- (PCOManagedObjectMapping *)mappingForKeyPath:(NSString *)keyPath {
+    return (PCOManagedObjectMapping *) [self objectMappingForKeyPath:keyPath];
 }
 
-- (void)setMapping:(RKObjectMapping *)mapping forKeyPath:(NSString *)keyPath {
+- (void)setMapping:(PCOManagedObjectMapping *)mapping forKeyPath:(NSString *)keyPath {
     [self setObjectMapping:mapping forKeyPath:keyPath];
 }
 
@@ -117,7 +117,7 @@
     return [self objectMappingsByKeyPath];
 }
 
-- (void)registerMapping:(RKObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath {
+- (void)registerMapping:(PCOManagedObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath {
     return [self registerObjectMapping:objectMapping withRootKeyPath:keyPath];
 }
 

@@ -18,6 +18,7 @@
 //  limitations under the License.
 //
 
+#import "PCOManagedObjectMapping.h"
 #import "RKRequestSerialization.h"
 #import "RKMIMETypes.h"
 #import "RKParser.h"
@@ -35,11 +36,11 @@
 @synthesize object = _object;
 @synthesize mapping = _mapping;
 
-+ (id)serializerWithObject:(id)object mapping:(RKObjectMapping*)mapping {
++ (id)serializerWithObject:(id)object mapping:(PCOManagedObjectMapping*)mapping {
     return [[[self alloc] initWithObject:object mapping:mapping] autorelease];
 }
 
-- (id)initWithObject:(id)object mapping:(RKObjectMapping*)mapping {
+- (id)initWithObject:(id)object mapping:(PCOManagedObjectMapping*)mapping {
     self = [super init];
     if (self) {
         _object = [object retain];
@@ -58,7 +59,7 @@
 // Return it serialized into a dictionary
 - (id)serializedObject:(NSError**)error {
     NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
-    RKObjectMappingOperation* operation = [RKObjectMappingOperation mappingOperationFromObject:_object toObject:dictionary withMapping:_mapping];
+    PCOManagedObjectMappingOperation* operation = [PCOManagedObjectMappingOperation mappingOperationFromObject:_object toObject:dictionary withMapping:_mapping];
     operation.delegate = self;
     BOOL success = [operation performMapping:error];
     if (!success) {
@@ -107,7 +108,7 @@
 
 #pragma mark - RKObjectMappingOperationDelegate
 
-- (void)objectMappingOperation:(RKObjectMappingOperation *)operation didSetValue:(id)value forKeyPath:(NSString *)keyPath usingMapping:(RKObjectAttributeMapping *)mapping {
+- (void)objectMappingOperation:(PCOManagedObjectMappingOperation *)operation didSetValue:(id)value forKeyPath:(NSString *)keyPath usingMapping:(RKObjectAttributeMapping *)mapping {
     id transformedValue = nil;
     
     if ([value isKindOfClass:[NSDate class]]) {

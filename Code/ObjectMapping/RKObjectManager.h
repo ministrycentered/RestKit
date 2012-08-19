@@ -19,7 +19,7 @@
 //
 
 #import "Network.h"
-#import "RKManagedObjectLoader.h"
+#import "PCOManagedObjectLoader.h"
 #import "RKObjectRouter.h"
 #import "RKObjectMappingProvider.h"
 
@@ -71,7 +71,7 @@ typedef enum {
  1. Serialization. RestKit can be used to transport local object representation back to the remote web server for processing
  by serializing them into an RKRequestSerializable representation. The desired serialization format is configured by setting
  the serializationMIMEType property. RestKit currently supports serialization to RKMIMETypeFormURLEncoded and RKMIMETypeJSON.
- The serialization rules themselves are expressed via an instance of RKObjectMapping.
+ The serialization rules themselves are expressed via an instance of PCOManagedObjectMapping.
  
  <h4>The Mapping Provider</h4>
  
@@ -81,10 +81,10 @@ typedef enum {
  for the object mapping operations constructed for you. In this way, the mappingProvider is the central registry for the knowledge
  about how objects in your application are mapped.
  
- Mappings are registered by constructing instances of RKObjectMapping and registering them with the provider:
+ Mappings are registered by constructing instances of PCOManagedObjectMapping and registering them with the provider:
  `
     RKObjectManager* manager = [RKObjectManager managerWithBaseURL:myBaseURL];
-    RKObjectMapping* articleMapping = [RKObjectMapping mappingForClass:[Article class]];
+    PCOManagedObjectMapping* articleMapping = [PCOManagedObjectMapping mappingForClass:[Article class]];
     [mapping mapAttributes:@"title", @"body", @"publishedAt", nil];
     [manager.mappingProvider setObjectMapping:articleMapping forKeyPath:@"article"];
 
@@ -194,7 +194,7 @@ typedef enum {
  This is useful when you are working with mappable data that is not identifiable via KVC
  and you are sending/receiving objects of the same type. When YES, RestKit will search the
  mappingProvider for an object mapping targeting the same type of object that you passed into
- getObject:, postObject:, :putObject, or deleteObject: and configure the RKObjectLoader to map
+ getObject:, postObject:, :putObject, or deleteObject: and configure the PCOManagedObjectLoader to map
  the payload using that mapping. This is merely a convenience for users who are working entirely
  with non-KVC mappable data and saves the added step of searching the mapping provider manually.
  
@@ -216,12 +216,12 @@ typedef enum {
  with the loaded objects. Remote objects will be mapped to local objects by consulting the keyPath registrations
  set on the mapping provider.
  */
-- (RKObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Load mappable objects at the specified resourcePath using the specified object mapping.
  */
-- (RKObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath objectMapping:(RKObjectMapping*)objectMapping delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath objectMapping:(PCOManagedObjectMapping*)objectMapping delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 ////////////////////////////////////////////////////////
 /// @name Mappable Object Loaders
@@ -229,22 +229,22 @@ typedef enum {
 /**
  Fetch the data for a mappable object by performing an HTTP GET. 
  */
-- (RKObjectLoader*)getObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)getObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Create a remote mappable model by POSTing the attributes to the remote resource and loading the resulting objects from the payload
  */
-- (RKObjectLoader*)postObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)postObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Update a remote mappable model by PUTing the attributes to the remote resource and loading the resulting objects from the payload
  */
-- (RKObjectLoader*)putObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)putObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Delete the remote instance of a mappable model by performing an HTTP DELETE on the remote resource
  */
-- (RKObjectLoader*)deleteObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)deleteObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 ////////////////////////////////////////////////////////
 /// @name Block Configured Object Loaders
@@ -259,12 +259,12 @@ typedef enum {
  For example:
     
     - (void)loadObjectWithBlockExample {
-        [[RKObjectManager sharedManager] loadObjectsAtResourcePath:@"/monkeys.json" delegate:self block:^(RKObjectLoader* loader) {
+        [[RKObjectManager sharedManager] loadObjectsAtResourcePath:@"/monkeys.json" delegate:self block:^(PCOManagedObjectLoader* loader) {
             loader.objectMapping = [[RKObjectManager sharedManager].mappingProvider objectMappingForClass:[Monkey class]];
         }];
     }
  */
-- (RKObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 /**
  Configure and send an object loader after yielding it to a block for configuration. This allows for very succinct on-the-fly
@@ -275,48 +275,48 @@ typedef enum {
     - (BOOL)changePassword:(NSString*)newPassword error:(NSError**)error {
         if ([self validatePassword:newPassword error:error]) {
             self.password = newPassword;
-            [[RKObjectManager sharedManager] sendObject:self delegate:self block:^(RKObjectLoader* loader) {
+            [[RKObjectManager sharedManager] sendObject:self delegate:self block:^(PCOManagedObjectLoader* loader) {
                 loader.method = RKRequestMethodPOST;
                 loader.serializationMIMEType = RKMIMETypeJSON; // We want to send this request as JSON
                 loader.targetObject = nil;  // Map the results back onto a new object instead of self
                 // Set up a custom serialization mapping to handle this request
-                loader.serializationMapping = [RKObjectMapping serializationMappingWithBlock:^(RKObjectMapping* mapping) {
+                loader.serializationMapping = [PCOManagedObjectMapping serializationMappingWithBlock:^(PCOManagedObjectMapping* mapping) {
                     [mapping mapAttributes:@"password", nil];
                 }];
             }];
         }
     }
  */
-- (RKObjectLoader*)sendObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)sendObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 /**
  GET a remote object instance and yield the object loader to the block before sending
  
  @see sendObject:method:delegate:block
  */
-- (RKObjectLoader*)getObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)getObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 /**
  POST a remote object instance and yield the object loader to the block before sending
  
  @see sendObject:method:delegate:block
- - (RKObjectLoader*)postObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+ - (PCOManagedObjectLoader*)postObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
  */
-- (RKObjectLoader*)postObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)postObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 /**
  PUT a remote object instance and yield the object loader to the block before sending
  
  @see sendObject:method:delegate:block
  */
-- (RKObjectLoader*)putObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)putObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 /**
  DELETE a remote object instance and yield the object loader to the block before sending
  
  @see sendObject:method:delegate:block
  */
-- (RKObjectLoader*)deleteObject:(id<NSObject>)object delegate:(id<RKObjectLoaderDelegate>)delegate block:(void(^)(RKObjectLoader*))block;
+- (PCOManagedObjectLoader*)deleteObject:(id<NSObject>)object delegate:(id<PCOManagedObjectLoaderDelegate>)delegate block:(void(^)(PCOManagedObjectLoader*))block;
 
 #endif
 
@@ -326,25 +326,25 @@ typedef enum {
  Fetch the data for a mappable object by performing an HTTP GET. The data returned in the response will be mapped according
  to the object mapping provided.
  */
-- (RKObjectLoader*)getObject:(id<NSObject>)object mapResponseWith:(RKObjectMapping*)objectMapping delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)getObject:(id<NSObject>)object mapResponseWith:(PCOManagedObjectMapping*)objectMapping delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Send the data for a mappable object by performing an HTTP POST. The data returned in the response will be mapped according
  to the object mapping provided.
  */
-- (RKObjectLoader*)postObject:(id<NSObject>)object mapResponseWith:(RKObjectMapping*)objectMapping delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)postObject:(id<NSObject>)object mapResponseWith:(PCOManagedObjectMapping*)objectMapping delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Send the data for a mappable object by performing an HTTP PUT. The data returned in the response will be mapped according
  to the object mapping provided.
  */
-- (RKObjectLoader*)putObject:(id<NSObject>)object mapResponseWith:(RKObjectMapping*)objectMapping delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)putObject:(id<NSObject>)object mapResponseWith:(PCOManagedObjectMapping*)objectMapping delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Delete a remote object representation by performing an HTTP DELETE. The data returned in the response will be mapped according
  to the object mapping provided.
  */
-- (RKObjectLoader*)deleteObject:(id<NSObject>)object mapResponseWith:(RKObjectMapping*)objectMapping delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)deleteObject:(id<NSObject>)object mapResponseWith:(PCOManagedObjectMapping*)objectMapping delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  These methods are provided for situations where the remote system you are working with has slightly different conventions
@@ -359,7 +359,7 @@ typedef enum {
  the best place to begin work if you need to create a slightly different collection loader than what is
  provided by the loadObjects family of methods.
  */
-- (RKObjectLoader*)objectLoaderWithResourcePath:(NSString*)resourcePath delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)objectLoaderWithResourcePath:(NSString*)resourcePath delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 /**
  Returns an object loader configured for transmitting an object instance across the wire. A request will be constructed
@@ -370,6 +370,6 @@ typedef enum {
  
  // TODO: Cleanup this comment
  */
-- (RKObjectLoader*)objectLoaderForObject:(id<NSObject>)object method:(RKRequestMethod)method delegate:(id<RKObjectLoaderDelegate>)delegate;
+- (PCOManagedObjectLoader*)objectLoaderForObject:(id<NSObject>)object method:(RKRequestMethod)method delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
 
 @end

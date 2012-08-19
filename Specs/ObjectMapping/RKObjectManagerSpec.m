@@ -22,7 +22,7 @@
 #import "RKObjectManager.h"
 #import "RKManagedObjectStore.h"
 #import "RKSpecResponseLoader.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKObjectMappingProvider.h"
 #import "RKHuman.h"
 #import "RKCat.h"
@@ -44,7 +44,7 @@
     
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     humanMapping.rootKeyPath = @"human";
     [humanMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"]];
     [humanMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"nick-name" toKeyPath:@"nickName"]];
@@ -55,7 +55,7 @@
     [humanMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"updated-at" toKeyPath:@"updatedAt"]];
     [humanMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"railsID"]];
     
-    RKManagedObjectMapping* catObjectMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catObjectMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     [catObjectMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"]];
     [catObjectMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"nick-name" toKeyPath:@"nickName"]];
     [catObjectMapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"birthday" toKeyPath:@"birthday"]];
@@ -70,7 +70,7 @@
     [provider setMapping:humanMapping forKeyPath:@"human"];
     [provider setMapping:humanMapping forKeyPath:@"humans"];
     
-    RKObjectMapping* humanSerialization = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* humanSerialization = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [humanSerialization addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"]];
     [provider setSerializationMapping:humanSerialization forClass:[RKHuman class]];
     _objectManager.mappingProvider = provider;
@@ -109,12 +109,12 @@
 - (void)testShouldDeleteACoreDataBackedTargetObjectOnError {
     RKHuman* temporaryHuman = [[RKHuman alloc] initWithEntity:[NSEntityDescription entityForName:@"RKHuman" inManagedObjectContext:_objectManager.objectStore.managedObjectContext] insertIntoManagedObjectContext:_objectManager.objectStore.managedObjectContext];
     temporaryHuman.name = @"My Name";
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [mapping mapAttributes:@"name", nil];
     
     RKSpecResponseLoader* loader = [RKSpecResponseLoader responseLoader];    
     NSString* resourcePath = @"/humans/fail";
-    RKObjectLoader* objectLoader = [_objectManager objectLoaderWithResourcePath:resourcePath delegate:loader];
+    PCOManagedObjectLoader* objectLoader = [_objectManager objectLoaderWithResourcePath:resourcePath delegate:loader];
     objectLoader.method = RKRequestMethodPOST;
     objectLoader.targetObject = temporaryHuman;
     objectLoader.serializationMapping = mapping;
@@ -127,7 +127,7 @@
 - (void)testShouldNotDeleteACoreDataBackedTargetObjectOnErrorIfItWasAlreadySaved {
     RKHuman* temporaryHuman = [[RKHuman alloc] initWithEntity:[NSEntityDescription entityForName:@"RKHuman" inManagedObjectContext:_objectManager.objectStore.managedObjectContext] insertIntoManagedObjectContext:_objectManager.objectStore.managedObjectContext];
     temporaryHuman.name = @"My Name";
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [mapping mapAttributes:@"name", nil];
     
     // Save it to suppress deletion
@@ -135,7 +135,7 @@
     
     RKSpecResponseLoader* loader = [RKSpecResponseLoader responseLoader];    
     NSString* resourcePath = @"/humans/fail";
-    RKObjectLoader* objectLoader = [_objectManager objectLoaderWithResourcePath:resourcePath delegate:loader];
+    PCOManagedObjectLoader* objectLoader = [_objectManager objectLoaderWithResourcePath:resourcePath delegate:loader];
     objectLoader.method = RKRequestMethodPOST;
     objectLoader.targetObject = temporaryHuman;
     objectLoader.serializationMapping = mapping;
@@ -185,7 +185,7 @@
     [router routeClass:[RKObjectMapperSpecModel class] toResourcePath:@"/humans" forMethod:RKRequestMethodPOST];
     manager.router = router;
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     mapping.rootKeyPath = @"human";
     [mapping mapAttributes:@"name", @"age", nil];
     [manager.mappingProvider setMapping:mapping forKeyPath:@"human"];
@@ -208,7 +208,7 @@
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     [objectManager.router routeClass:[RKObjectMapperSpecModel class] toResourcePath:@"/humans/1"];
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     [mapping mapAttributes:@"name", @"age", nil];
     [objectManager.mappingProvider registerMapping:mapping withRootKeyPath:@"human"];
     
@@ -216,7 +216,7 @@
     RKObjectMapperSpecModel* human = [[RKObjectMapperSpecModel new] autorelease];
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
-    RKObjectLoader* loader = [objectManager getObject:human delegate:responseLoader];
+    PCOManagedObjectLoader* loader = [objectManager getObject:human delegate:responseLoader];
     [responseLoader waitForResponse];
     RKLogCritical(@"%@", [loader.URLRequest allHTTPHeaderFields]);
     assertThat([loader.URLRequest valueForHTTPHeaderField:@"Content-Length"], is(equalTo(@"0")));
@@ -226,7 +226,7 @@
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     [objectManager.router routeClass:[RKObjectMapperSpecModel class] toResourcePath:@"/humans/1"];
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     [mapping mapAttributes:@"name", @"age", nil];
     [objectManager.mappingProvider registerMapping:mapping withRootKeyPath:@"human"];
     
@@ -234,7 +234,7 @@
     RKObjectMapperSpecModel* human = [[RKObjectMapperSpecModel new] autorelease];
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
-    RKObjectLoader* loader = [objectManager deleteObject:human delegate:responseLoader];
+    PCOManagedObjectLoader* loader = [objectManager deleteObject:human delegate:responseLoader];
     [responseLoader waitForResponse];
     RKLogCritical(@"%@", [loader.URLRequest allHTTPHeaderFields]);
     assertThat([loader.URLRequest valueForHTTPHeaderField:@"Content-Length"], is(equalTo(@"0")));
@@ -244,12 +244,12 @@
 
 - (void)testShouldLetYouLoadObjectsWithABlock {
     RKObjectManager* objectManager = RKSpecNewObjectManager();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     [mapping mapAttributes:@"name", @"age", nil];
     [objectManager.mappingProvider registerMapping:mapping withRootKeyPath:@"human"];
     
     RKSpecResponseLoader* responseLoader = [RKSpecResponseLoader responseLoader];
-    [objectManager loadObjectsAtResourcePath:@"/JSON/humans/1.json" delegate:responseLoader block:^(RKObjectLoader* loader) {
+    [objectManager loadObjectsAtResourcePath:@"/JSON/humans/1.json" delegate:responseLoader block:^(PCOManagedObjectLoader* loader) {
         loader.objectMapping = mapping;
     }];
     [responseLoader waitForResponse];
@@ -260,7 +260,7 @@
 - (void)testShouldAllowYouToOverrideTheRoutedResourcePath {
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     [objectManager.router routeClass:[RKObjectMapperSpecModel class] toResourcePath:@"/humans/2"];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     [mapping mapAttributes:@"name", @"age", nil];
     [objectManager.mappingProvider registerMapping:mapping withRootKeyPath:@"human"];
     
@@ -268,7 +268,7 @@
     RKObjectMapperSpecModel* human = [[RKObjectMapperSpecModel new] autorelease];
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
-    [objectManager deleteObject:human delegate:responseLoader block:^(RKObjectLoader* loader) {
+    [objectManager deleteObject:human delegate:responseLoader block:^(PCOManagedObjectLoader* loader) {
         loader.resourcePath = @"/humans/1";
     }];
     [responseLoader waitForResponse];
@@ -277,7 +277,7 @@
 
 - (void)testShouldAllowYouToUseObjectHelpersWithoutRouting {
     RKObjectManager* objectManager = RKSpecNewObjectManager();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     [mapping mapAttributes:@"name", @"age", nil];
     [objectManager.mappingProvider registerMapping:mapping withRootKeyPath:@"human"];
     
@@ -285,7 +285,7 @@
     RKObjectMapperSpecModel* human = [[RKObjectMapperSpecModel new] autorelease];
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
-    [objectManager deleteObject:human delegate:responseLoader block:^(RKObjectLoader* loader) {
+    [objectManager deleteObject:human delegate:responseLoader block:^(PCOManagedObjectLoader* loader) {
         loader.resourcePath = @"/humans/1";
     }];
     [responseLoader waitForResponse];
@@ -294,7 +294,7 @@
 
 - (void)testShouldAllowYouToSkipTheMappingProvider {
     RKObjectManager* objectManager = RKSpecNewObjectManager();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     mapping.rootKeyPath = @"human";
     [mapping mapAttributes:@"name", @"age", nil];
     
@@ -302,7 +302,7 @@
     RKObjectMapperSpecModel* human = [[RKObjectMapperSpecModel new] autorelease];
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
-    [objectManager deleteObject:human delegate:responseLoader block:^(RKObjectLoader* loader) {
+    [objectManager deleteObject:human delegate:responseLoader block:^(PCOManagedObjectLoader* loader) {
         loader.resourcePath = @"/humans/1";
         loader.objectMapping = mapping;
     }];
@@ -313,7 +313,7 @@
 
 - (void)testShouldLetYouOverloadTheParamsOnAnObjectLoaderRequest {
     RKObjectManager* objectManager = RKSpecNewObjectManager();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKObjectMapperSpecModel class]];
     mapping.rootKeyPath = @"human";
     [mapping mapAttributes:@"name", @"age", nil];
     
@@ -322,7 +322,7 @@
     human.name = @"Blake Watters";
     human.age = [NSNumber numberWithInt:28];
     NSDictionary *myParams = [NSDictionary dictionaryWithObject:@"bar" forKey:@"foo"];
-    RKObjectLoader* loader = [objectManager sendObject:human delegate:responseLoader block:^(RKObjectLoader* loader) {
+    PCOManagedObjectLoader* loader = [objectManager sendObject:human delegate:responseLoader block:^(PCOManagedObjectLoader* loader) {
         loader.method = RKRequestMethodPOST;
         loader.resourcePath = @"/humans/1";
         loader.objectMapping = mapping;

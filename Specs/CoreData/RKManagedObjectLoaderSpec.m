@@ -20,7 +20,7 @@
 
 #import "RKSpecEnvironment.h"
 #import "RKManagedObjectLoader.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKHuman.h"
 #import "RKCat.h"
 #import "NSManagedObject+ActiveRecord.h"
@@ -74,7 +74,7 @@
     human.railsID = [NSNumber numberWithInt:1];
     [objectManager.objectStore save];
     
-    RKObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     RKSpecResponseLoader* responseLoader = [RKSpecResponseLoader responseLoader];
     RKManagedObjectLoader* objectLoader = [RKManagedObjectLoader loaderWithResourcePath:@"/humans/1" objectManager:objectManager delegate:responseLoader];
     objectLoader.method = RKRequestMethodDELETE;
@@ -91,9 +91,9 @@
     RKSpecStubNetworkAvailability(YES);
     objectManager.objectStore = store;
     
-    RKObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     [humanMapping mapAttributes:@"name", nil];
-    RKObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     [catMapping mapAttributes:@"name", nil];
     [humanMapping mapKeyPath:@"favorite_cat" toRelationship:@"favoriteCat" withMapping:catMapping];
     [objectManager.mappingProvider setMapping:humanMapping forKeyPath:@"human"];
@@ -109,7 +109,7 @@
 
 - (void)testShouldDeleteObjectsMissingFromPayloadReturnedByObjectCache {
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
     [humanMapping mapKeyPath:@"id" toAttribute:@"railsID"];
     [humanMapping mapAttributes:@"name", nil];
     humanMapping.primaryKeyAttribute = @"railsID";
@@ -147,7 +147,7 @@
 - (void)testShouldNotDeleteOrphansFromManagedObjectCache
 {
   RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
-  RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
+  PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
   [humanMapping mapKeyPath:@"id" toAttribute:@"railsID"];
   [humanMapping mapAttributes:@"name", nil];
   humanMapping.primaryKeyAttribute = @"railsID";
@@ -195,7 +195,7 @@
 - (void)testShouldNotDeleteOddOrphansFromManagedObjectCache
 {
   RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
-  RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
+  PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKHuman"];
   [humanMapping mapKeyPath:@"id" toAttribute:@"railsID"];
   [humanMapping mapAttributes:@"name", nil];
   humanMapping.primaryKeyAttribute = @"railsID";

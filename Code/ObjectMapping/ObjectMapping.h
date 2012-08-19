@@ -19,8 +19,8 @@
 //
 
 #import "RKObjectManager.h"
-#import "RKObjectLoader.h"
-#import "RKObjectMapping.h"
+#import "PCOManagedObjectLoader.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKObjectSerializer.h"
 #import "RKObjectMappingProvider.h"
 #import "RKObjectMappingResult.h"

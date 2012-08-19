@@ -80,7 +80,7 @@ NSString * const RKSpecResponseLoaderTimeoutException = @"RKSpecResponseLoaderTi
     
     // If request is an Object Loader, then objectLoader:didLoadObjects:
     // will be sent after didLoadResponse:
-    if (NO == [request isKindOfClass:[RKObjectLoader class]]) {
+    if (NO == [request isKindOfClass:[PCOManagedObjectLoader class]]) {
         _awaitingResponse = NO;
         _success = YES;
     }
@@ -89,7 +89,7 @@ NSString * const RKSpecResponseLoaderTimeoutException = @"RKSpecResponseLoaderTi
 - (void)request:(RKRequest *)request didFailLoadWithError:(NSError *)error {
     // If request is an Object Loader, then objectLoader:didFailWithError:
     // will be sent after didFailLoadWithError:
-    if (NO == [request isKindOfClass:[RKObjectLoader class]]) {
+    if (NO == [request isKindOfClass:[PCOManagedObjectLoader class]]) {
         [self loadError:error];
     }
 }
@@ -100,7 +100,7 @@ NSString * const RKSpecResponseLoaderTimeoutException = @"RKSpecResponseLoaderTi
     _wasCancelled = YES;
 }
 
-- (void)objectLoader:(RKObjectLoader*)objectLoader didLoadObjects:(NSArray*)objects {
+- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didLoadObjects:(NSArray*)objects {
 	NSLog(@"Response: %@", [objectLoader.response bodyAsString]);
 	NSLog(@"Loaded objects: %@", objects);
 	_objects = [objects retain];
@@ -108,11 +108,11 @@ NSString * const RKSpecResponseLoaderTimeoutException = @"RKSpecResponseLoaderTi
 	_success = YES;
 }
 
-- (void)objectLoader:(RKObjectLoader*)objectLoader didFailWithError:(NSError*)error; {	
+- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didFailWithError:(NSError*)error; {	
 	[self loadError:error];
 }
 
-- (void)objectLoaderDidLoadUnexpectedResponse:(RKObjectLoader*)objectLoader {
+- (void)objectLoaderDidLoadUnexpectedResponse:(PCOManagedObjectLoader*)objectLoader {
     NSLog(@"*** Loaded unexpected response in spec response loader");
     _success = NO;
     _awaitingResponse = NO;

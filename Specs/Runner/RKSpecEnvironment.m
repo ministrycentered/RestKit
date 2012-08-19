@@ -59,7 +59,7 @@ RKOAuthClient* RKSpecNewOAuthClient(RKSpecResponseLoader* loader){
 
 
 RKObjectManager* RKSpecNewObjectManager(void) {    
-    [RKObjectMapping setDefaultDateFormatters:nil];
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
     RKObjectManager* objectManager = [RKObjectManager objectManagerWithBaseURL:RKSpecGetBaseURL()];
     [RKObjectManager setSharedManager:objectManager];
     [RKClient setSharedClient:objectManager.client];

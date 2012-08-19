@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RKObjectLoader.h"
+#import "PCOManagedObjectLoader.h"
 
 @interface RKSpecResponseLoader : NSObject <RKObjectLoaderDelegate, RKOAuthClientDelegate> {
 	BOOL _awaitingResponse;

@@ -73,7 +73,7 @@
 }
 
 - (void)testShouldMapXML {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKSpecTabData class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKSpecTabData class]];
     [mapping mapAttributes:@"title", @"summary", nil];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider alloc] init];
     id data = RKSpecParseFixture(@"tab_data.xml");

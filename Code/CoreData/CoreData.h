@@ -22,7 +22,5 @@
 #import "ObjectMapping.h"
 #import "NSManagedObject+ActiveRecord.h"
 #import "RKManagedObjectStore.h"
-#import "RKManagedObjectSeeder.h"
-#import "RKManagedObjectCache.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKObjectPropertyInspector+CoreData.h"

@@ -19,7 +19,7 @@
 //
 
 #import "RKSpecEnvironment.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKHuman.h"
 #import "RKMappableObject.h"
 
@@ -44,14 +44,14 @@
     // Load Core Data
     RKSpecNewManagedObjectStore();
     
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForEntityWithName:@"RKCat"];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForEntityWithName:@"RKCat"];
     id value = [mapping defaultValueForMissingAttribute:@"name"];
     assertThat(value, is(equalTo(@"Kitty Cat!")));
 }
 
 - (void)testShouldCreateNewInstancesOfUnmanagedObjects {
     RKSpecNewManagedObjectStore();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKMappableObject class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKMappableObject class]];
     id object = [mapping mappableObjectForData:[NSDictionary dictionary]];
     assertThat(object, isNot(nilValue()));
     assertThat([object class], is(equalTo([RKMappableObject class])));
@@ -59,7 +59,7 @@
 
 - (void)testShouldCreateNewInstancesOfManagedObjectsWhenTheMappingIsAnRKObjectMapping {
     RKSpecNewManagedObjectStore();
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKMappableObject class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKMappableObject class]];
     id object = [mapping mappableObjectForData:[NSDictionary dictionary]];
     assertThat(object, isNot(nilValue()));
     assertThat([object class], is(equalTo([RKMappableObject class])));
@@ -67,7 +67,7 @@
 
 - (void)testShouldFindExistingManagedObjectsByPrimaryKey {
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     mapping.primaryKeyAttribute = @"railsID";
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"railsID"]];
     
@@ -85,7 +85,7 @@
 - (void)testShouldFindExistingManagedObjectsByPrimaryKeyPath {
     RKManagedObjectStore* store = RKSpecNewManagedObjectStore();
     [RKHuman truncateAll];
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     mapping.primaryKeyAttribute = @"railsID";
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"monkey.id" toKeyPath:@"railsID"]];
     
@@ -104,7 +104,7 @@
 
 - (void)testShouldCreateNewManagedObjectInstancesWhenThereIsNoPrimaryKeyInTheData {
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     mapping.primaryKeyAttribute = @"railsID";
     
     NSDictionary* data = [NSDictionary dictionary];
@@ -115,7 +115,7 @@
 
 - (void)testShouldCreateNewManagedObjectInstancesWhenThereIsNoPrimaryKeyAttribute {
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     
     NSDictionary* data = [NSDictionary dictionary];
     id object = [mapping mappableObjectForData:data];
@@ -125,7 +125,7 @@
 
 - (void)testShouldCreateANewManagedObjectWhenThePrimaryKeyValueIsNSNull {
     RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping* mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     mapping.primaryKeyAttribute = @"railsID";
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"railsID"]];
     
@@ -137,7 +137,7 @@
 
 - (void)testShouldMapACollectionOfObjectsWithDynamicKeys {
     RKManagedObjectStore *objectStore = RKSpecNewManagedObjectStore();
-    RKManagedObjectMapping *mapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping *mapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     mapping.forceCollectionMapping = YES;
     mapping.primaryKeyAttribute = @"name";
     [mapping mapKeyOfNestedDictionaryToAttribute:@"name"];    

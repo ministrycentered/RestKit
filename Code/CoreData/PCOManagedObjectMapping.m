@@ -1,46 +1,32 @@
 //
-//  RKObjectMapping.m
+//  PCOManagedObjectMapping.m
 //  RestKit
 //
-//  Created by Blake Watters on 4/30/11.
-//  Copyright 2011 Two Toasters
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//  http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+//  Created by Jason on 8/18/12.
+//  Copyright (c) 2012 RestKit. All rights reserved.
 //
 
-#import "RKObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
+
+#import "RKObjectManager.h"
+#import "RKManagedObjectStore.h"
+
 #import "RKObjectRelationshipMapping.h"
+
 #import "RKObjectPropertyInspector.h"
+#import "RKObjectPropertyInspector+CoreData.h"
+
 #import "RKLog.h"
 
 // Constants
 NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE>";
 
-@implementation RKObjectMapping
 
-@synthesize objectClass = _objectClass;
-@synthesize mappings = _mappings;
-@synthesize dateFormatters = _dateFormatters;
-@synthesize preferredDateFormatter = _preferredDateFormatter;
-@synthesize rootKeyPath = _rootKeyPath;
-@synthesize setDefaultValueForMissingAttributes = _setDefaultValueForMissingAttributes;
-@synthesize setNilForMissingRelationships = _setNilForMissingRelationships;
-@synthesize forceCollectionMapping = _forceCollectionMapping;
-@synthesize performKeyValueValidation = _performKeyValueValidation;
+@implementation PCOManagedObjectMapping
 
 + (id)mappingForClass:(Class)objectClass {
-    RKObjectMapping* mapping = [self new];
-    mapping.objectClass = objectClass;    
+    PCOManagedObjectMapping* mapping = [self new];
+    mapping.objectClass = objectClass;
     return [mapping autorelease];
 }
 
@@ -50,14 +36,14 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
 
 #if NS_BLOCKS_AVAILABLE
 
-+ (id)mappingForClass:(Class)objectClass block:(void(^)(RKObjectMapping*))block {
-    RKObjectMapping* mapping = [self mappingForClass:objectClass];
++ (id)mappingForClass:(Class)objectClass block:(void(^)(PCOManagedObjectMapping*))block {
+    PCOManagedObjectMapping* mapping = [self mappingForClass:objectClass];
     block(mapping);
     return mapping;
 }
 
-+ (id)serializationMappingWithBlock:(void(^)(RKObjectMapping*))block {
-    RKObjectMapping* mapping = [self serializationMapping];
++ (id)serializationMappingWithBlock:(void(^)(PCOManagedObjectMapping*))block {
+    PCOManagedObjectMapping* mapping = [self serializationMapping];
     block(mapping);
     return mapping;
 }
@@ -72,12 +58,19 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
         self.setNilForMissingRelationships = NO;
         self.forceCollectionMapping = NO;
         self.performKeyValueValidation = YES;
+
+		_relationshipToPrimaryKeyMappings = [[NSMutableDictionary alloc] init];
     }
-    
+
     return self;
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
+	[_managedObjectContext release];
+    [_entity release];
+    [_relationshipToPrimaryKeyMappings release];
+
     [_rootKeyPath release];
     [_mappings release];
     [_dateFormatters release];
@@ -96,7 +89,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
             [mappings addObject:mapping];
         }
     }
-    
+
     return mappings;
 }
 
@@ -107,7 +100,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
             [mappings addObject:mapping];
         }
     }
-    
+
     return mappings;
 }
 
@@ -121,7 +114,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
 }
 
 - (NSString*)description {
-    return [NSString stringWithFormat:@"RKObjectMapping class => %@: keyPath mappings => %@", NSStringFromClass(self.objectClass), _mappings];
+    return [NSString stringWithFormat:@"PCOManagedObjectMapping class => %@: keyPath mappings => %@", NSStringFromClass(self.objectClass), _mappings];
 }
 
 - (id)mappingForKeyPath:(NSString*)keyPath {
@@ -130,7 +123,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
             return mapping;
         }
     }
-    
+
     return nil;
 }
 
@@ -144,13 +137,13 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
     va_list args;
     va_start(args, attributeKeyPath);
 	NSMutableSet* attributeKeyPaths = [NSMutableSet set];
-                                       
+
     for (NSString* keyPath = attributeKeyPath; keyPath != nil; keyPath = va_arg(args, NSString*)) {
         [attributeKeyPaths addObject:keyPath];
     }
-    
+
     va_end(args);
-    
+
     [self mapAttributesCollection:attributeKeyPaths];
 }
 
@@ -204,28 +197,28 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
 #ifndef MAX_INVERSE_MAPPING_RECURSION_DEPTH
 #define MAX_INVERSE_MAPPING_RECURSION_DEPTH (100)
 #endif
-- (RKObjectMapping*)inverseMappingAtDepth:(NSInteger)depth {
+- (PCOManagedObjectMapping*)inverseMappingAtDepth:(NSInteger)depth {
     NSAssert(depth < MAX_INVERSE_MAPPING_RECURSION_DEPTH, @"Exceeded max recursion level in inverseMapping. This is likely due to a loop in the serialization graph. To break this loop, specify one-way relationships by setting serialize to NO in mapKeyPath:toRelationship:withObjectMapping:serialize:");
-    RKObjectMapping* inverseMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* inverseMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     for (RKObjectAttributeMapping* attributeMapping in self.attributeMappings) {
         [inverseMapping mapKeyPath:attributeMapping.destinationKeyPath toAttribute:attributeMapping.sourceKeyPath];
     }
-    
+
     for (RKObjectRelationshipMapping* relationshipMapping in self.relationshipMappings) {
         if (relationshipMapping.reversible) {
             id<RKObjectMappingDefinition> mapping = relationshipMapping.mapping;
-            if (! [mapping isKindOfClass:[RKObjectMapping class]]) {
+            if (! [mapping isKindOfClass:[PCOManagedObjectMapping class]]) {
                 RKLogWarning(@"Unable to generate inverse mapping for relationship '%@': %@ relationships cannot be inversed.", relationshipMapping.sourceKeyPath, NSStringFromClass([mapping class]));
                 continue;
             }
-            [inverseMapping mapKeyPath:relationshipMapping.destinationKeyPath toRelationship:relationshipMapping.sourceKeyPath withMapping:[(RKObjectMapping*)mapping inverseMappingAtDepth:depth+1]];
+            [inverseMapping mapKeyPath:relationshipMapping.destinationKeyPath toRelationship:relationshipMapping.sourceKeyPath withMapping:[(PCOManagedObjectMapping*)mapping inverseMappingAtDepth:depth+1]];
         }
     }
-    
+
     return inverseMapping;
 }
 
-- (RKObjectMapping*)inverseMapping {
+- (PCOManagedObjectMapping*)inverseMapping {
     return [self inverseMappingAtDepth:0];
 }
 
@@ -241,7 +234,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
     va_end(args);
 }
 
-- (void)mapKeyOfNestedDictionaryToAttribute:(NSString*)attributeName {    
+- (void)mapKeyOfNestedDictionaryToAttribute:(NSString*)attributeName {
     [self mapKeyPath:RKObjectMappingNestingAttributeKeyName toAttribute:attributeName];
 }
 
@@ -255,7 +248,7 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
             return mapping;
         }
     }
-    
+
     return nil;
 }
 
@@ -265,31 +258,157 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
             return mapping;
         }
     }
-    
+
     return nil;
 }
 
 - (id)defaultValueForMissingAttribute:(NSString*)attributeName {
-    return nil;
+    NSAttributeDescription *desc = [[self.entity attributesByName] valueForKey:attributeName];
+    return [desc defaultValue];
 }
 
+
 - (id)mappableObjectForData:(id)mappableData {
+	NSAssert(1 == 0, @"Nope.");
+
     return [[self.objectClass new] autorelease];
 }
 
+
 - (Class)classForProperty:(NSString*)propertyName {
-    return [[RKObjectPropertyInspector sharedInspector] typeForProperty:propertyName ofClass:self.objectClass];
+    Class propertyClass = [[RKObjectPropertyInspector sharedInspector] typeForProperty:propertyName ofClass:self.objectClass];
+    if (! propertyClass) {
+        propertyClass = [[RKObjectPropertyInspector sharedInspector] typeForProperty:propertyName ofEntity:self.entity];
+    }
+
+    return propertyClass;
 }
 
 #pragma mark - Date and Time
 
 - (NSDateFormatter *)preferredDateFormatter {
-    return _preferredDateFormatter ? _preferredDateFormatter : [RKObjectMapping preferredDateFormatter];
+    return _preferredDateFormatter ? _preferredDateFormatter : [PCOManagedObjectMapping preferredDateFormatter];
 }
 
 - (NSArray *)dateFormatters {
-    return _dateFormatters ? _dateFormatters : [RKObjectMapping defaultDateFormatters];
+    return _dateFormatters ? _dateFormatters : [PCOManagedObjectMapping defaultDateFormatters];
 }
+
+
+
+
+
++ (id)mappingForClass:(Class)objectClass inContext:(NSManagedObjectContext *)context {
+    return [self mappingForEntityWithName:NSStringFromClass(objectClass) inManagedObjectContext:context];
+}
+
++ (PCOManagedObjectMapping*)mappingForEntity:(NSEntityDescription*)entity inManagedObjectContext:(NSManagedObjectContext *)moc {
+    return [[[self alloc] initWithEntity:entity inManagedObjectContext:moc] autorelease];
+}
+
++ (PCOManagedObjectMapping*)mappingForEntityWithName:(NSString*)entityName inManagedObjectContext:(NSManagedObjectContext *)moc {
+    return [self mappingForEntity:[NSEntityDescription entityForName:entityName inManagedObjectContext:moc] inManagedObjectContext:moc];
+}
+
+- (id)initWithEntity:(NSEntityDescription*)entity inManagedObjectContext:(NSManagedObjectContext *)moc {
+    NSAssert(entity, @"Cannot initialize an PCOManagedObjectMapping without an entity. Maybe you want PCOManagedObjectMapping instead?");
+    self = [self init];
+    if (self) {
+        self.objectClass = NSClassFromString([entity managedObjectClassName]);
+        _entity = [entity retain];
+		_managedObjectContext = [moc retain];
+    }
+
+    return self;
+}
+
+
+- (NSDictionary*)relationshipsAndPrimaryKeyAttributes {
+    return _relationshipToPrimaryKeyMappings;
+}
+
+- (void)connectRelationship:(NSString*)relationshipName withObjectForPrimaryKeyAttribute:(NSString*)primaryKeyAttribute {
+    NSAssert([_relationshipToPrimaryKeyMappings objectForKey:relationshipName] == nil, @"Cannot add connect relationship %@ by primary key, a mapping already exists.", relationshipName);
+    [_relationshipToPrimaryKeyMappings setObject:primaryKeyAttribute forKey:relationshipName];
+}
+
+- (void)connectRelationshipsWithObjectsForPrimaryKeyAttributes:(NSString*)firstRelationshipName, ... {
+    va_list args;
+    va_start(args, firstRelationshipName);
+    for (NSString* relationshipName = firstRelationshipName; relationshipName != nil; relationshipName = va_arg(args, NSString*)) {
+		NSString* primaryKeyAttribute = va_arg(args, NSString*);
+        NSAssert(primaryKeyAttribute != nil, @"Cannot connect a relationship without an attribute containing the primary key");
+        [self connectRelationship:relationshipName withObjectForPrimaryKeyAttribute:primaryKeyAttribute];
+        // TODO: Raise proper exception here, argument error...
+    }
+    va_end(args);
+}
+
+
+
+- (id)mappableObjectForData:(id)mappableData inContext:(NSManagedObjectContext *)context
+{
+    //NSAssert(mappableData, @"Mappable data cannot be nil");
+
+	if (mappableData == nil)
+	{
+		return nil;
+	}
+
+    // TODO: We do not want to be using this singleton reference to the object store.
+    // Clean this up when we update the Core Data internals
+    RKManagedObjectStore* objectStore = [RKObjectManager sharedManager].objectStore;
+
+	if (objectStore == nil)
+	{
+		return nil;
+	}
+
+    id object = nil;
+    id primaryKeyValue = nil;
+    NSString* primaryKeyAttribute;
+
+    NSEntityDescription* entity = [self entity];
+    RKObjectAttributeMapping* primaryKeyAttributeMapping = nil;
+
+    primaryKeyAttribute = [self primaryKeyAttribute];
+    if (primaryKeyAttribute) {
+        // If a primary key has been set on the object mapping, find the attribute mapping
+        // so that we can extract any existing primary key from the mappable data
+        for (RKObjectAttributeMapping* attributeMapping in self.attributeMappings) {
+            if ([attributeMapping.destinationKeyPath isEqualToString:primaryKeyAttribute]) {
+                primaryKeyAttributeMapping = attributeMapping;
+                break;
+            }
+        }
+
+        // Get the primary key value out of the mappable data (if any)
+        if ([primaryKeyAttributeMapping isMappingForKeyOfNestedDictionary]) {
+            RKLogDebug(@"Detected use of nested dictionary key as primaryKey attribute...");
+            primaryKeyValue = [[mappableData allKeys] lastObject];
+        } else {
+            NSString* keyPathForPrimaryKeyElement = primaryKeyAttributeMapping.sourceKeyPath;
+            if (keyPathForPrimaryKeyElement) {
+                primaryKeyValue = [mappableData valueForKeyPath:keyPathForPrimaryKeyElement];
+            }
+        }
+    }
+
+    // If we have found the primary key attribute & value, try to find an existing instance to update
+    if (primaryKeyAttribute && primaryKeyValue) {
+        object = [objectStore findOrCreateInstanceOfEntity:entity inManagedObjectContext:context withPrimaryKeyAttribute:primaryKeyAttribute andValue:primaryKeyValue];
+        //NSAssert2(object, @"Failed creation of managed object with entity '%@' and primary key value '%@'", entity.name, primaryKeyValue);
+    } else {
+        object = [[[NSManagedObject alloc] initWithEntity:entity
+                           insertIntoManagedObjectContext:context] autorelease];
+    }
+
+    return object;
+}
+
+
+
+
 
 @end
 
@@ -298,17 +417,17 @@ NSString* const RKObjectMappingNestingAttributeKeyName = @"<RK_NESTING_ATTRIBUTE
 static NSMutableArray *defaultDateFormatters = nil;
 static NSDateFormatter *preferredDateFormatter = nil;
 
-@implementation RKObjectMapping (DateAndTimeFormatting)
+@implementation PCOManagedObjectMapping (DateAndTimeFormatting)
 
 + (NSArray *)defaultDateFormatters {
     if (!defaultDateFormatters) {
         defaultDateFormatters = [[NSMutableArray alloc] initWithCapacity:2];
-        
+
         // Setup the default formatters
         [self addDefaultDateFormatterForString:@"yyyy-MM-dd'T'HH:mm:ss'Z'" inTimeZone:nil];
         [self addDefaultDateFormatterForString:@"MM/dd/yyyy" inTimeZone:nil];
     }
-    
+
     return defaultDateFormatters;
 }
 
@@ -335,7 +454,7 @@ static NSDateFormatter *preferredDateFormatter = nil;
     } else {
         dateFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
     }
-    
+
     [self addDefaultDateFormatter:dateFormatter];
     [dateFormatter release];
 
@@ -349,7 +468,7 @@ static NSDateFormatter *preferredDateFormatter = nil;
         preferredDateFormatter.timeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
         preferredDateFormatter.locale = [[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"] autorelease];
     }
-    
+
     return preferredDateFormatter;
 }
 

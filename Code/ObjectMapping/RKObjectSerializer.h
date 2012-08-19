@@ -18,9 +18,11 @@
 //  limitations under the License.
 //
 
-#import "RKObjectMapping.h"
-#import "RKObjectMappingOperation.h"
+//#import "PCOManagedObjectMapping.h"
+#import "PCOManagedObjectMappingOperation.h"
 #import "RKRequestSerializable.h"
+
+@class PCOManagedObjectMapping;
 
 /**
  Performs a serialization of an object and its relationships back into
@@ -28,16 +30,16 @@
  transformed object is then enclosed in an RKRequestSerializable representation
  that is suitable for inclusion in an RKRequest.
  */
-@interface RKObjectSerializer : NSObject <RKObjectMappingOperationDelegate> {
+@interface RKObjectSerializer : NSObject <PCOManagedObjectMappingOperationDelegate> {
     id _object;
-    RKObjectMapping* _mapping;
+    PCOManagedObjectMapping* _mapping;
 }
 
 @property (nonatomic, readonly) id object;
-@property (nonatomic, readonly) RKObjectMapping* mapping;
+@property (nonatomic, readonly) PCOManagedObjectMapping* mapping;
 
-+ (id)serializerWithObject:(id)object mapping:(RKObjectMapping*)mapping;
-- (id)initWithObject:(id)object mapping:(RKObjectMapping*)mapping;
++ (id)serializerWithObject:(id)object mapping:(PCOManagedObjectMapping*)mapping;
+- (id)initWithObject:(id)object mapping:(PCOManagedObjectMapping*)mapping;
 
 /**
  Return a serialized representation of the source object by applying an object mapping
@@ -56,7 +58,7 @@
 /**
  Return a request serialization for the source object by mapping it to an NSMutableDictionary, encoding
  the data via a parser into the specified MIME Type, and wrapping it into a serializable format that can
- be used as the params of an RKRequest or RKObjectLoader
+ be used as the params of an RKRequest or PCOManagedObjectLoader
  */
 - (id<RKRequestSerializable>)serializationForMIMEType:(NSString*)mimeType error:(NSError**)error;
 

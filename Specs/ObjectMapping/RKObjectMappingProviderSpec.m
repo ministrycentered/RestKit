@@ -22,7 +22,7 @@
 #import "RKObjectManager.h"
 #import "RKManagedObjectStore.h"
 #import "RKSpecResponseLoader.h"
-#import "RKManagedObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKObjectMappingProvider.h"
 #import "RKHuman.h"
 #import "RKCat.h"
@@ -44,7 +44,7 @@
 }
 
 - (void)testShouldFindAnExistingObjectMappingForAClass {
-    RKManagedObjectMapping* humanMapping = [RKManagedObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     assertThat(humanMapping, isNot(equalTo(nil)));
     [humanMapping mapAttributes:@"name", nil];
     [_objectManager.mappingProvider addObjectMapping:humanMapping];
@@ -54,7 +54,7 @@
 }
 
 - (void)testShouldFindAnExistingObjectMappingForAKeyPath {
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     assertThat(catMapping, isNot(equalTo(nil)));
     [catMapping mapAttributes:@"name", nil];
     [_objectManager.mappingProvider setMapping:catMapping forKeyPath:@"cat"];
@@ -65,7 +65,7 @@
 
 - (void)testShouldAllowYouToRemoveAMappingByKeyPath {
     RKObjectMappingProvider *mappingProvider = [RKObjectMappingProvider objectMappingProvider];
-    RKManagedObjectMapping* catMapping = [RKManagedObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     assertThat(catMapping, isNot(equalTo(nil)));
     [catMapping mapAttributes:@"name", nil];
     [mappingProvider setMapping:catMapping forKeyPath:@"cat"];

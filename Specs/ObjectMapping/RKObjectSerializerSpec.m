@@ -31,7 +31,7 @@
 
 - (void)testShouldSerializeToFormEncodedData {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", @"value2", @"key2", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key2" toKeyPath:@"key2-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
@@ -45,7 +45,7 @@
 
 - (void)testShouldSerializeADateToFormEncodedData {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", [NSDate dateWithTimeIntervalSince1970:0], @"date", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"date" toKeyPath:@"date-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
@@ -61,7 +61,7 @@
 
 - (void)testShouldSerializeADateToAStringUsingThePreferredDateFormatter {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", [NSDate dateWithTimeIntervalSince1970:0], @"date", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     NSDateFormatter *dateFormatter = [[NSDateFormatter new] autorelease];
     dateFormatter.dateFormat = @"MM/dd/yyyy";
     dateFormatter.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
@@ -81,7 +81,7 @@
 
 - (void)testShouldSerializeADateToJSON {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", [NSDate dateWithTimeIntervalSince1970:0], @"date", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"date" toKeyPath:@"date-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
@@ -98,7 +98,7 @@
 
 - (void)testShouldSerializeNSDecimalNumberAttributesToJSON {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", [NSDecimalNumber decimalNumberWithString:@"18274191731731.4557723623"], @"number", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"number" toKeyPath:@"number-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
@@ -121,7 +121,7 @@
                             [NSDictionary dictionaryWithObjectsAndKeys:@"subValue1", @"subKey1", nil], @"relationship2",
                             nil];
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key2" toKeyPath:@"key2-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"relationship1.relatioship1Key1" toKeyPath:@"relationship1-form-name[r1k1]"]];
@@ -143,7 +143,7 @@
 
 - (void)testShouldSerializeToJSON {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", @"value2", @"key2", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key2" toKeyPath:@"key2-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
@@ -158,7 +158,7 @@
 
 - (void)testShouldSetReturnNilIfItDoesNotFindAnythingToSerialize {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", @"value2", @"key2", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key12123" toKeyPath:@"key1-form-name"]];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];
     NSError* error = nil;
@@ -175,9 +175,9 @@
     object.hasOne = association;
     
     // Setup object mappings
-    RKObjectMapping* objectMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* objectMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [objectMapping mapAttributes:@"stringTest", nil];    
-    RKObjectMapping* relationshipMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* relationshipMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [relationshipMapping mapAttributes:@"date", nil];
     [objectMapping mapRelationship:@"hasOne" withMapping:relationshipMapping];
     
@@ -200,7 +200,7 @@
 
 - (void)testShouldEncloseTheSerializationInAContainerIfRequested {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", @"value2", @"key2", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     mapping.rootKeyPath = @"stuff";
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key1" toKeyPath:@"key1-form-name"]];
     [mapping addAttributeMapping:[RKObjectAttributeMapping mappingFromKeyPath:@"key2" toKeyPath:@"key2-form-name"]];
@@ -222,9 +222,9 @@
     object.hasMany = [NSSet setWithObject:association];
     
     // Setup object mappings
-    RKObjectMapping* objectMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* objectMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [objectMapping mapAttributes:@"stringTest", nil];    
-    RKObjectMapping* relationshipMapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* relationshipMapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     [relationshipMapping mapAttributes:@"date", nil];
     [objectMapping mapRelationship:@"hasMany" withMapping:relationshipMapping];
     
@@ -241,7 +241,7 @@
 
 - (void)testShouldSerializeAnNSNumberContainingABooleanToTrueFalseIfRequested {
     NSDictionary* object = [NSDictionary dictionaryWithObjectsAndKeys:@"value1", @"key1", [NSNumber numberWithBool:YES], @"boolean", nil];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     RKObjectAttributeMapping* attributeMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"boolean" toKeyPath:@"boolean-value"];
     [mapping addAttributeMapping:attributeMapping];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:object mapping:mapping];

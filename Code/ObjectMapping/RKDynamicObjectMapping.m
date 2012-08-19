@@ -31,12 +31,12 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue);
 @interface RKDynamicObjectMappingMatcher : NSObject {
     NSString* _keyPath;
     id _value;
-    RKObjectMapping* _objectMapping;
+    PCOManagedObjectMapping* _objectMapping;
 }
 
-@property (nonatomic, readonly) RKObjectMapping* objectMapping;
+@property (nonatomic, readonly) PCOManagedObjectMapping* objectMapping;
 
-- (id)initWithKey:(NSString*)key value:(id)value objectMapping:(RKObjectMapping*)objectMapping;
+- (id)initWithKey:(NSString*)key value:(id)value objectMapping:(PCOManagedObjectMapping*)objectMapping;
 - (BOOL)isMatchForData:(id)data;
 - (NSString*)matchDescription;
 @end
@@ -45,7 +45,7 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue);
 
 @synthesize objectMapping = _objectMapping;
 
-- (id)initWithKey:(NSString*)key value:(id)value objectMapping:(RKObjectMapping*)objectMapping {
+- (id)initWithKey:(NSString*)key value:(id)value objectMapping:(PCOManagedObjectMapping*)objectMapping {
     self = [super init];
     if (self) {
         _keyPath = [key retain];
@@ -109,16 +109,16 @@ BOOL RKObjectIsValueEqualToValue(id sourceValue, id destinationValue);
     [super dealloc];
 }
 
-- (void)setObjectMapping:(RKObjectMapping*)objectMapping whenValueOfKeyPath:(NSString*)keyPath isEqualTo:(id)value {
+- (void)setObjectMapping:(PCOManagedObjectMapping*)objectMapping whenValueOfKeyPath:(NSString*)keyPath isEqualTo:(id)value {
     RKLogDebug(@"Adding dynamic object mapping for key '%@' with value '%@' to destination class: %@", keyPath, value, NSStringFromClass(objectMapping.objectClass));
     RKDynamicObjectMappingMatcher* matcher = [[RKDynamicObjectMappingMatcher alloc] initWithKey:keyPath value:value objectMapping:objectMapping];
     [_matchers addObject:matcher];
     [matcher release];
 }
 
-- (RKObjectMapping*)objectMappingForDictionary:(NSDictionary*)data {
+- (PCOManagedObjectMapping*)objectMappingForDictionary:(NSDictionary*)data {
     NSAssert([data isKindOfClass:[NSDictionary class]], @"Dynamic object mapping can only be performed on NSDictionary mappables, got %@", NSStringFromClass([data class]));
-    RKObjectMapping* mapping = nil;
+    PCOManagedObjectMapping* mapping = nil;
     
     RKLogTrace(@"Performing dynamic object mapping for mappable data: %@", data);
     

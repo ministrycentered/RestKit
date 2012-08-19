@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import "RKObjectMapping.h"
+
 #import "RKDynamicObjectMapping.h"
 
 /**
@@ -32,13 +32,13 @@
     when attempting to map a parsed payload into objects. Each keyPath is examined using
     valueForKeyPath: to determine if any mappable data exists within the payload. If data is
     found, the RKObjectMapper will instantiate an RKObjectMappingOperation to perform the mapping
-    using the RKObjectMapping or RKDynamicObjectMapping associated with the keyPath.
+    using the PCOManagedObjectMapping or RKDynamicObjectMapping associated with the keyPath.
  1. Providing the appropriate serialization mapping to instances of RKObjectManager when an object
     is to be sent to the remote server using [RKObjectManager postObject:delegate:] or 
     [RKObjectManager postObject:delegate]. This mapping is used to serialize the object into a 
     format suitable for encoding into a URL form encoded or JSON representation.
- 1. Providing convenient storage of RKObjectMapping references for users who are not using keyPath
-    based mapping. Mappings can be added to the provider and retrieved by the [RKObjectMapping objectClass]
+ 1. Providing convenient storage of PCOManagedObjectMapping references for users who are not using keyPath
+    based mapping. Mappings can be added to the provider and retrieved by the [PCOManagedObjectMapping objectClass]
     that they target.
  */
 @interface RKObjectMappingProvider : NSObject {
@@ -55,14 +55,14 @@
 + (RKObjectMappingProvider *)objectMappingProvider;
 
 /**
- Configures the mapping provider to use the RKObjectMapping or RKDynamicObjectMapping provided when
+ Configures the mapping provider to use the PCOManagedObjectMapping or RKDynamicObjectMapping provided when
  content is encountered at the specified keyPath.
  
  When an RKObjectMapper is performing its work, each registered keyPath within the mapping provider will
  be searched for content in the parsed payload. If mappable content is found, the object mapping configured
  for the keyPath will be used to perform an RKObjectMappingOperation.
  
- @param objectOrDynamicMapping An RKObjectMapping or RKDynamicObjectMapping to register for keyPath based mapping.
+ @param objectOrDynamicMapping An PCOManagedObjectMapping or RKDynamicObjectMapping to register for keyPath based mapping.
  @param keyPath The keyPath to register the mapping as being responsible for mapping.
  @see RKObjectMapper
  @see RKObjectMappingOperation
@@ -70,16 +70,16 @@
 - (void)setObjectMapping:(id<RKObjectMappingDefinition>)objectOrDynamicMapping forKeyPath:(NSString *)keyPath;
 
 /**
- Returns the RKObjectMapping or RKObjectDynamic mapping configured for use 
+ Returns the PCOManagedObjectMapping or RKObjectDynamic mapping configured for use 
  when mappable content is encountered at keyPath
  
  @param keyPath A registered keyPath to retrieve the object mapping for
- @return The RKObjectMapping or RKDynamicObjectMapping for the specified keyPath or nil if none is registered.
+ @return The PCOManagedObjectMapping or RKDynamicObjectMapping for the specified keyPath or nil if none is registered.
  */
 - (id<RKObjectMappingDefinition>)objectMappingForKeyPath:(NSString *)keyPath;
 
 /**
- Removes the RKObjectMapping or RKDynamicObjectMapping registered at the specified keyPath
+ Removes the PCOManagedObjectMapping or RKDynamicObjectMapping registered at the specified keyPath
  from the provider.
  
  @param keyPath The keyPath to remove the corresponding mapping for
@@ -87,7 +87,7 @@
 - (void)removeObjectMappingForKeyPath:(NSString *)keyPath;
 
 /**
- Returns a dictionary where the keys are mappable keyPaths and the values are the RKObjectMapping
+ Returns a dictionary where the keys are mappable keyPaths and the values are the PCOManagedObjectMapping
  or RKDynamicObjectMapping to use for mappable data that appears at the keyPath.
  
  @warning The returned dictionary can contain RKDynamicObjectMapping instances. Check the type if
@@ -110,7 +110,7 @@
  
  We might configure a mapping like so:
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[Person class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[Person class]];
     [mapping mapAttributes:@"first_name", @"last_name", nil];
  
  If we want to parse the above JSON and serialize it such that using postObject: or putObject: use the same format,
@@ -123,18 +123,18 @@
  
  If you want to manipulate the serialization mapping yourself, you can work with the mapping directly:
  
-    RKObjectMapping* serializationMappingForPerson = [personMapping inverseMapping];
+    PCOManagedObjectMapping* serializationMappingForPerson = [personMapping inverseMapping];
     // NOTE: Serialization mapping default to a nil root keyPath and will serialize to a flat dictionary
     [[RKObjectManager sharedManager].mappingProvider setSerializationMapping:serializationMappingForPerson forClass:[Person class]];
  
  @param objectMapping An object mapping we wish to register on the provider
  @param keyPath The keyPath we wish to register for the mapping and use as the rootKeyPath for serialization
  */
-- (void)registerObjectMapping:(RKObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath;
+- (void)registerObjectMapping:(PCOManagedObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath;
 
 /**
  Adds an object mapping to the provider for later retrieval. The mapping is not bound to a particular keyPath and
- must be explicitly set on an instance of RKObjectLoader or RKObjectMappingOperation to be applied. This is useful
+ must be explicitly set on an instance of PCOManagedObjectLoader or RKObjectMappingOperation to be applied. This is useful
  in cases where the remote system does not namespace resources in a keyPath that can be used for disambiguation.
  
  You can retrieve mappings added to the provider by invoking objectMappingsForClass: and objectMappingForClass:
@@ -143,7 +143,7 @@
  @see objectMappingsForClass:
  @see objectMappingForClass:
  */
-- (void)addObjectMapping:(RKObjectMapping *)objectMapping;
+- (void)addObjectMapping:(PCOManagedObjectMapping *)objectMapping;
 
 /**
  Returns all object mappings registered for a particular class on the provider. The collection of mappings is assembled
@@ -167,40 +167,40 @@
  via setObjectMapping:forKeyPath:.
  
  @param objectClass The class that we want to return mappings for
- @return An RKObjectMapping matching objectClass or nil
+ @return An PCOManagedObjectMapping matching objectClass or nil
  */
-- (RKObjectMapping *)objectMappingForClass:(Class)objectClass;
+- (PCOManagedObjectMapping *)objectMappingForClass:(Class)objectClass;
 
 /**
  Registers an object mapping for use when serializing instances of objectClass for transport
  over HTTP. Used by the object manager during postObject: and putObject:.
  
- Serialization mappings are simply instances of RKObjectMapping that target NSMutableDictionary
+ Serialization mappings are simply instances of PCOManagedObjectMapping that target NSMutableDictionary
  as the target object class. After the object is mapped into an NSMutableDictionary, it can be
  encoded to form encoded string, JSON, XML, etc.
  
  @param objectMapping The serialization mapping to register for use when serializing objectClass
  @param objectClass The class of the object type we are registering a serialization for
- @see [RKObjectMapping serializationMapping]
+ @see [PCOManagedObjectMapping serializationMapping]
  */
-- (void)setSerializationMapping:(RKObjectMapping *)objectMapping forClass:(Class)objectClass;
+- (void)setSerializationMapping:(PCOManagedObjectMapping *)objectMapping forClass:(Class)objectClass;
 
 /**
  Returns the serialization mapping for a specific object class
  which has been previously registered. The 
  
  @param objectClass The class we wish to obtain the serialization mapping for
- @return The RKObjectMapping instance used for mapping instances of objectClass for transport
+ @return The PCOManagedObjectMapping instance used for mapping instances of objectClass for transport
  @see setSerializationMapping:forClass:
  */
-- (RKObjectMapping *)serializationMappingForClass:(Class)objectClass;
+- (PCOManagedObjectMapping *)serializationMappingForClass:(Class)objectClass;
 
 @end
 
 // Method signatures being phased out
 @interface RKObjectMappingProvider (CompatibilityAliases)
 + (RKObjectMappingProvider *)mappingProvider;
-- (void)registerMapping:(RKObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath;
+- (void)registerMapping:(PCOManagedObjectMapping *)objectMapping withRootKeyPath:(NSString *)keyPath;
 - (void)setMapping:(id<RKObjectMappingDefinition>)objectOrDynamicMapping forKeyPath:(NSString *)keyPath;
 - (id<RKObjectMappingDefinition>)mappingForKeyPath:(NSString *)keyPath;
 - (NSDictionary *)mappingsByKeyPath;

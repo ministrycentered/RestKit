@@ -19,7 +19,6 @@
 //
 
 #import <CoreData/CoreData.h>
-#import "RKManagedObjectCache.h"
 
 @class RKManagedObjectStore;
 
@@ -79,14 +78,10 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
  */
 //@property (nonatomic, retain) NSObject<RKManagedObjectCache>* managedObjectCache;
 
-/*
- * This returns an appropriate managed object context for this object store.
- * Because of the intrecacies of how Core Data works across threads it returns
- * a different NSManagedObjectContext for each thread.
- */
-@property (nonatomic, readonly) NSManagedObjectContext* managedObjectContext;
+- (NSManagedObjectContext *)newManagedObjectContext;
 
 @property (nonatomic, retain) NSManagedObjectContext * masterContext;
+@property (nonatomic, retain) NSManagedObjectContext * mainThreadContext;
 
 /**
  * Initialize a new managed object store with a SQLite database with the filename specified
@@ -119,7 +114,7 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
 /**
  * Save the current contents of the managed object store
  */
-- (NSError*)save;
+//- (NSError*)save;
 
 /**
  * This deletes and recreates the managed object context and 
@@ -131,20 +126,20 @@ extern NSString* const RKManagedObjectStoreDidFailSaveNotification;
 /**
  *	Retrieves a model object from the appropriate context using the objectId
  */
-- (NSManagedObject*)objectWithID:(NSManagedObjectID*)objectID;
+//- (NSManagedObject*)objectWithID:(NSManagedObjectID*)objectID;
 
 /**
  *	Retrieves a array of model objects from the appropriate context using
  *	an array of NSManagedObjectIDs
  */
-- (NSArray*)objectsWithIDs:(NSArray*)objectIDs;
+//- (NSArray*)objectsWithIDs:(NSArray*)objectIDs;
 
 /**
  * Retrieves a model object from the object store given a Core Data entity and
  * the primary key attribute and value for the desired object. Internally, this method
  * constructs a thread-local cache of managed object instances to avoid repeated fetches from the store
  */
-- (NSManagedObject*)findOrCreateInstanceOfEntity:(NSEntityDescription*)entity withPrimaryKeyAttribute:(NSString*)primaryKeyAttribute andValue:(id)primaryKeyValue;
+- (NSManagedObject*)findOrCreateInstanceOfEntity:(NSEntityDescription*)entity inManagedObjectContext:(NSManagedObjectContext *)context withPrimaryKeyAttribute:(NSString*)primaryKeyAttribute andValue:(id)primaryKeyValue;
 
 /**
  * Returns an array of objects that the 'live' at the specified resource path. Usage of this

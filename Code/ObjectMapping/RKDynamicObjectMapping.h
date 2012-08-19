@@ -19,7 +19,7 @@
 //
 
 #import "RKObjectMappingDefinition.h"
-#import "RKObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 
 /**
  Return the appropriate object mapping given a mappable data
@@ -27,12 +27,12 @@
 @protocol RKDynamicObjectMappingDelegate <NSObject>
 
 @required
-- (RKObjectMapping*)objectMappingForData:(id)data;
+- (PCOManagedObjectMapping*)objectMappingForData:(id)data;
 
 @end
 
 #ifdef NS_BLOCKS_AVAILABLE
-typedef RKObjectMapping*(^RKDynamicObjectMappingDelegateBlock)(id);
+typedef PCOManagedObjectMapping*(^RKDynamicObjectMappingDelegateBlock)(id);
 #endif
 
 /**
@@ -98,13 +98,13 @@ typedef RKObjectMapping*(^RKDynamicObjectMappingDelegateBlock)(id);
     [mapping setObjectMapping:boyMapping whenValueOfKeyPath:@"gender" isEqualTo:@"male"];
     [mapping setObjectMapping:boyMapping whenValueOfKeyPath:@"gender" isEqualTo:@"female"];
  */
-- (void)setObjectMapping:(RKObjectMapping *)objectMapping whenValueOfKeyPath:(NSString *)keyPath isEqualTo:(id)value;
+- (void)setObjectMapping:(PCOManagedObjectMapping *)objectMapping whenValueOfKeyPath:(NSString *)keyPath isEqualTo:(id)value;
 
 /**
- Invoked by the RKObjectMapper and RKObjectMappingOperation to determine the appropriate RKObjectMapping to use
+ Invoked by the RKObjectMapper and RKObjectMappingOperation to determine the appropriate PCOManagedObjectMapping to use
  when mapping the specified dictionary of mappable data.
  */
-- (RKObjectMapping *)objectMappingForDictionary:(NSDictionary *)dictionary;
+- (PCOManagedObjectMapping *)objectMappingForDictionary:(NSDictionary *)dictionary;
 
 @end
 

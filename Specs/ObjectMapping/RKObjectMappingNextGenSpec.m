@@ -21,7 +21,7 @@
 #import <OCMock/OCMock.h>
 #import <OCMock/NSNotificationCenter+OCMAdditions.h>
 #import "RKSpecEnvironment.h"
-#import "RKObjectMapping.h"
+#import "PCOManagedObjectMapping.h"
 #import "RKObjectMappingOperation.h"
 #import "RKObjectAttributeMapping.h"
 #import "RKObjectRelationshipMapping.h"
@@ -239,17 +239,17 @@
     assertThat([elementMapping description], is(equalTo(@"RKObjectKeyPathMapping: id => userID")));
 }
 
-#pragma mark - RKObjectMapping Specs
+#pragma mark - PCOManagedObjectMapping Specs
 
 - (void)testShouldDefineMappingFromAnElementToAProperty {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     assertThat([mapping mappingForKeyPath:@"id"], is(sameInstance(idMapping)));
 }
 
 - (void)testShouldAddMappingsToAttributeMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     assertThatBool([mapping.mappings containsObject:idMapping], is(equalToBool(YES)));
@@ -257,7 +257,7 @@
 }
 
 - (void)testShouldAddMappingsToRelationshipMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectRelationshipMapping* idMapping = [RKObjectRelationshipMapping mappingFromKeyPath:@"id" toKeyPath:@"userID" withMapping:nil];
     [mapping addRelationshipMapping:idMapping];
     assertThatBool([mapping.mappings containsObject:idMapping], is(equalToBool(YES)));
@@ -265,22 +265,22 @@
 }
 
 - (void)testShouldGenerateAttributeMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     assertThat([mapping mappingForKeyPath:@"name"], is(nilValue()));
     [mapping mapKeyPath:@"name" toAttribute:@"name"];
     assertThat([mapping mappingForKeyPath:@"name"], isNot(nilValue()));
 }
 
 - (void)testShouldGenerateRelationshipMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
-    RKObjectMapping* anotherMapping = [RKObjectMapping mappingForClass:[NSDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* anotherMapping = [PCOManagedObjectMapping mappingForClass:[NSDictionary class]];
     assertThat([mapping mappingForKeyPath:@"another"], is(nilValue()));
     [mapping mapRelationship:@"another" withMapping:anotherMapping];
     assertThat([mapping mappingForKeyPath:@"another"], isNot(nilValue()));
 }
 
 - (void)testShouldRemoveMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     assertThat(mapping.mappings, hasItem(idMapping));
@@ -289,7 +289,7 @@
 }
 
 - (void)testShouldRemoveMappingsByKeyPath {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     assertThat(mapping.mappings, hasItem(idMapping));
@@ -298,7 +298,7 @@
 }
 
 - (void)testShouldRemoveAllMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [mapping mapAttributes:@"one", @"two", @"three", nil];
     assertThat(mapping.mappings, hasCountOf(3));
     [mapping removeAllMappings];
@@ -306,26 +306,26 @@
 }
 
 - (void)testShouldGenerateAnInverseMappings {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];    
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];    
     [mapping mapKeyPath:@"first_name" toAttribute:@"firstName"];
     [mapping mapAttributes:@"city", @"state", @"zip", nil];
-    RKObjectMapping* otherMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* otherMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [otherMapping mapAttributes:@"street", nil];
     [mapping mapRelationship:@"address" withMapping:otherMapping];
-    RKObjectMapping* inverse = [mapping inverseMapping];
+    PCOManagedObjectMapping* inverse = [mapping inverseMapping];
     assertThat(inverse.objectClass, is(equalTo([NSMutableDictionary class])));
     assertThat([inverse mappingForKeyPath:@"firstName"], isNot(nilValue()));
 }
 
 - (void)testShouldLetYouRetrieveMappingsByAttribute {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* attributeMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"nameAttribute"];
     [mapping addAttributeMapping:attributeMapping];
     assertThat([mapping mappingForAttribute:@"nameAttribute"], is(equalTo(attributeMapping)));
 }
 
 - (void)testShouldLetYouRetrieveMappingsByRelationship {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectRelationshipMapping* relationshipMapping = [RKObjectRelationshipMapping mappingFromKeyPath:@"friend" toKeyPath:@"friendRelationship" withMapping:mapping];
     [mapping addRelationshipMapping:relationshipMapping];
     assertThat([mapping mappingForRelationship:@"friendRelationship"], is(equalTo(relationshipMapping)));
@@ -334,7 +334,7 @@
 #pragma mark - RKObjectMapper Specs
 
 - (void)testShouldPerformBasicMapping {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -351,7 +351,7 @@
 }
 
 - (void)testShouldMapACollectionOfSimpleObjectDictionaries {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -367,7 +367,7 @@
 }
                                     
 - (void)testShouldDetermineTheObjectMappingByConsultingTheMappingProviderWhenThereIsATargetObject {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     id mockProvider = [OCMockObject partialMockForObject:provider];
@@ -381,7 +381,7 @@
 }
 
 - (void)testShouldAddAnErrorWhenTheKeyPathMappingAndObjectClassDoNotAgree {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     id mockProvider = [OCMockObject partialMockForObject:provider];
@@ -394,7 +394,7 @@
 }
 
 - (void)testShouldMapToATargetObject {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -417,7 +417,7 @@
 }
 
 - (void)testShouldCreateANewInstanceOfTheAppropriateDestinationObjectWhenThereIsNoTargetObject {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -432,7 +432,7 @@
 }
 
 - (void)testShouldDetermineTheMappingClassForAKeyPathByConsultingTheMappingProviderWhenMappingADictionaryWithoutATargetObject {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];        
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];        
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     id mockProvider = [OCMockObject partialMockForObject:provider];
@@ -445,7 +445,7 @@
 }
 
 - (void)testShouldMapWithoutATargetMapping {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -463,7 +463,7 @@
 }
 
 - (void)testShouldMapACollectionOfObjects {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -483,7 +483,7 @@
 }
 
 - (void)testShouldMapACollectionOfObjectsWithDynamicKeys {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     mapping.forceCollectionMapping = YES;
     [mapping mapKeyOfNestedDictionaryToAttribute:@"name"];    
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"(name).id" toKeyPath:@"userID"];
@@ -506,11 +506,11 @@
 }
 
 - (void)testShouldMapACollectionOfObjectsWithDynamicKeysAndRelationships {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     mapping.forceCollectionMapping = YES;
     [mapping mapKeyOfNestedDictionaryToAttribute:@"name"];
     
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [addressMapping mapAttributes:@"city", @"state", nil];
     [mapping mapKeyPath:@"(name).address" toRelationship:@"address" withMapping:addressMapping];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
@@ -533,16 +533,16 @@
 }
 
 - (void)testShouldMapANestedArrayOfObjectsWithDynamicKeysAndArrayRelationships {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleGroupWithUserArray class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleGroupWithUserArray class]];
     [mapping mapAttributes:@"name", nil];
 
     
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     userMapping.forceCollectionMapping = YES;
     [userMapping mapKeyOfNestedDictionaryToAttribute:@"name"];
     [mapping mapKeyPath:@"users" toRelationship:@"users" withMapping:userMapping];
     
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [addressMapping mapAttributes:
         @"city", @"city",
         @"state", @"state",
@@ -589,16 +589,16 @@
 }
 
 - (void)testShouldMapANestedArrayOfObjectsWithDynamicKeysAndSetRelationships {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleGroupWithUserSet class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleGroupWithUserSet class]];
     [mapping mapAttributes:@"name", nil];
     
     
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     userMapping.forceCollectionMapping = YES;
     [userMapping mapKeyOfNestedDictionaryToAttribute:@"name"];
     [mapping mapKeyPath:@"users" toRelationship:@"users" withMapping:userMapping];
     
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [addressMapping mapAttributes:
         @"city", @"city",
         @"state", @"state",
@@ -650,7 +650,7 @@
 
 
 - (void)testShouldBeAbleToMapFromAUserObjectToADictionary {    
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"userID" toKeyPath:@"id"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -670,7 +670,7 @@
 }
 
 - (void)testShouldMapRegisteredSubKeyPathsOfAnUnmappableDictionaryAndReturnTheResults {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -690,7 +690,7 @@
 #pragma mark Mapping Error States
 
 - (void)testShouldAddAnErrorWhenYouTryToMapAnArrayToATargetObject {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -728,7 +728,7 @@
 
 - (void)testShouldInformTheDelegateWhenMappingBegins {
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     
@@ -742,7 +742,7 @@
 
 - (void)testShouldInformTheDelegateWhenMappingEnds {
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     
@@ -757,7 +757,7 @@
 
 - (void)testShouldInformTheDelegateWhenCheckingForObjectMappingForKeyPathIsSuccessful {
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
     
@@ -771,7 +771,7 @@
 
 - (void)testShouldInformTheDelegateWhenCheckingForObjectMappingForKeyPathIsNotSuccessful {
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [provider setMapping:mapping forKeyPath:@"users"];
     
     id userInfo = RKSpecParseFixture(@"user.json");
@@ -797,7 +797,7 @@
 
 - (void)testShouldNotifyTheDelegateWhenItWillMapAnObject {
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [provider setMapping:mapping forKeyPath:@""];
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
     
@@ -811,7 +811,7 @@
 
 - (void)testShouldNotifyTheDelegateWhenItDidMapAnObject {
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
@@ -832,7 +832,7 @@
 
 - (void)testShouldNotifyTheDelegateWhenItFailedToMapAnObject {    
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMapperDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:NSClassFromString(@"OCPartialMockObject")];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:NSClassFromString(@"OCPartialMockObject")];
     [mapping mapAttributes:@"name", nil];
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
     [provider setMapping:mapping forKeyPath:@""];
@@ -853,7 +853,7 @@
 #pragma mark - RKObjectMappingOperationSpecs
 
 - (void)testShouldBeAbleToMapADictionaryToAUser {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -870,7 +870,7 @@
 }
 
 - (void)testShouldConsiderADictionaryContainingOnlyNullValuesForKeysMappable {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -887,7 +887,7 @@
 }
 
 - (void)testShouldBeAbleToMapAUserToADictionary {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"userID" toKeyPath:@"id"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -907,7 +907,7 @@
 }
 
 - (void)testShouldReturnNoWithoutErrorWhenGivenASourceObjectThatContainsNoMappableKeys {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -926,7 +926,7 @@
 
 - (void)testShouldInformTheDelegateOfAnErrorWhenMappingFailsBecauseThereIsNoMappableContent {
     id mockDelegate = [OCMockObject niceMockForProtocol:@protocol(RKObjectMappingOperationDelegate)];
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -943,7 +943,7 @@
 }
 
 - (void)testShouldSetTheErrorWhenMappingOperationFails {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[NSMutableDictionary class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[NSMutableDictionary class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     [mapping addAttributeMapping:idMapping];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
@@ -964,9 +964,9 @@
 #pragma mark - Attribute Mapping
 
 - (void)testShouldMapAStringToADateAttribute {
-    [RKObjectMapping setDefaultDateFormatters:nil];
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
 
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* birthDateMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"birthdate" toKeyPath:@"birthDate"];
     [mapping addAttributeMapping:birthDateMapping];
     
@@ -983,7 +983,7 @@
 }
 
 - (void)testShouldMapStringToURL {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"website" toKeyPath:@"website"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -999,7 +999,7 @@
 }
 
 - (void)testShouldMapAStringToANumberBool {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"is_developer" toKeyPath:@"isDeveloper"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1013,7 +1013,7 @@
 }
 
 - (void)testShouldMapAShortTrueStringToANumberBool {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"is_developer" toKeyPath:@"isDeveloper"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1028,7 +1028,7 @@
 }
 
 - (void)testShouldMapAShortFalseStringToANumberBool {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"is_developer" toKeyPath:@"isDeveloper"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1043,7 +1043,7 @@
 }
 
 - (void)testShouldMapAYesStringToANumberBool {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"is_developer" toKeyPath:@"isDeveloper"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1058,7 +1058,7 @@
 }
 
 - (void)testShouldMapANoStringToANumberBool {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"is_developer" toKeyPath:@"isDeveloper"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1073,7 +1073,7 @@
 }
 
 - (void)testShouldMapAStringToANumber {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"lucky_number" toKeyPath:@"luckyNumber"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1087,7 +1087,7 @@
 }
 
 - (void)testShouldMapAStringToADecimalNumber {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"weight" toKeyPath:@"weight"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1103,7 +1103,7 @@
 }
 
 - (void)testShouldMapANumberToAString {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"lucky_number" toKeyPath:@"name"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1117,7 +1117,7 @@
 }
 
 - (void)testShouldMapANumberToANSDecimalNumber {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* websiteMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"lucky_number" toKeyPath:@"weight"];
     [mapping addAttributeMapping:websiteMapping];
     
@@ -1137,7 +1137,7 @@
     [dateFormatter setDateFormat:@"MM/dd/yyyy"];
     NSDate* date = [dateFormatter dateFromString:@"11/27/1982"];
     
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* birthDateMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"dateAsNumber" toKeyPath:@"birthDate"];
     [mapping addAttributeMapping:birthDateMapping];
     
@@ -1152,7 +1152,7 @@
 }
 
 - (void)testShouldMapANestedKeyPathToAnAttribute {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* countryMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"address.country" toKeyPath:@"country"];
     [mapping addAttributeMapping:countryMapping];
     
@@ -1166,7 +1166,7 @@
 }
 
 - (void)testShouldMapANestedArrayOfStringsToAnAttribute {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* countryMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"interests" toKeyPath:@"interests"];
     [mapping addAttributeMapping:countryMapping];
     
@@ -1181,7 +1181,7 @@
 }
 
 - (void)testShouldMapANestedDictionaryToAnAttribute {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* countryMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"address" toKeyPath:@"addressDictionary"];
     [mapping addAttributeMapping:countryMapping];
     
@@ -1200,7 +1200,7 @@
 }
 
 - (void)testShouldNotSetAPropertyWhenTheValueIsTheSame {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -1215,7 +1215,7 @@
 }
 
 - (void)testShouldNotSetTheDestinationPropertyWhenBothAreNil {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -1231,7 +1231,7 @@
 }
 
 - (void)testShouldSetNilForNSNullValues {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -1248,7 +1248,7 @@
 }
 
 - (void)testShouldOptionallySetDefaultValueForAMissingKeyPath {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -1268,7 +1268,7 @@
 }
 
 - (void)testShouldOptionallyIgnoreAMissingSourceKeyPath {
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [mapping addAttributeMapping:nameMapping];
     
@@ -1290,10 +1290,10 @@
 #pragma mark - Relationship Mapping
 
 - (void)testShouldMapANestedObject {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     RKObjectAttributeMapping* cityMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"city" toKeyPath:@"city"];
     [addressMapping addAttributeMapping:cityMapping];
     
@@ -1311,10 +1311,10 @@
 }
 
 - (void)testShouldMapANestedObjectToCollection {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     RKObjectAttributeMapping* cityMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"city" toKeyPath:@"city"];
     [addressMapping addAttributeMapping:cityMapping];
     
@@ -1333,7 +1333,7 @@
 }
 
 - (void)testShouldMapANestedObjectCollection {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
     
@@ -1354,7 +1354,7 @@
 }
 
 - (void)testShouldMapANestedArrayIntoASet {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
     
@@ -1383,10 +1383,10 @@
     id mockUser = [OCMockObject partialMockForObject:user];
     [[mockUser reject] setAddress:OCMOCK_ANY];
     
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"addressID"];
     [addressMapping addAttributeMapping:idMapping];
     
@@ -1400,7 +1400,7 @@
 }
 
 - (void)testShouldNotSetThePropertyWhenTheNestedObjectCollectionIsIdentical {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"userID"];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:idMapping];
@@ -1437,10 +1437,10 @@
     id mockUser = [OCMockObject partialMockForObject:user];
     [[mockUser expect] setAddress:nil];
     
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"addressID"];
     [addressMapping addAttributeMapping:idMapping];
     RKObjectRelationshipMapping* relationshipMapping = [RKObjectRelationshipMapping mappingFromKeyPath:@"address" toKeyPath:@"address" withMapping:addressMapping];
@@ -1464,10 +1464,10 @@
     id mockUser = [OCMockObject partialMockForObject:user];
     [[mockUser reject] setAddress:nil];
     
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectAttributeMapping* nameMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"name" toKeyPath:@"name"];
     [userMapping addAttributeMapping:nameMapping];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     RKObjectAttributeMapping* idMapping = [RKObjectAttributeMapping mappingFromKeyPath:@"id" toKeyPath:@"addressID"];
     [addressMapping addAttributeMapping:idMapping];
     RKObjectRelationshipMapping* relationshipMapping = [RKObjectRelationshipMapping mappingFromKeyPath:@"address" toKeyPath:@"address" withMapping:addressMapping];
@@ -1490,7 +1490,7 @@
 - (void)testShouldRegisterRailsIdiomaticObjects {    
     RKObjectManager* objectManager = RKSpecNewObjectManager();
     RKSpecStubNetworkAvailability(YES);
-    RKObjectMapping* mapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* mapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [mapping mapAttributes:@"name", @"website", nil];
     [mapping mapKeyPath:@"id" toAttribute:@"userID"];
     
@@ -1516,9 +1516,9 @@
 }
 
 - (void)testShouldReturnAllMappingsForAClass {
-    RKObjectMapping* firstMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
-    RKObjectMapping* secondMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
-    RKObjectMapping* thirdMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* firstMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* secondMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* thirdMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     RKObjectMappingProvider* mappingProvider = [[RKObjectMappingProvider new] autorelease];
     [mappingProvider addObjectMapping:firstMapping];
     [mappingProvider addObjectMapping:secondMapping];
@@ -1528,16 +1528,16 @@
 
 - (void)testShouldReturnAllMappingsForAClassAndNotExplodeWithRegisteredDynamicMappings {
     RKObjectMappingProvider* provider = [[RKObjectMappingProvider new] autorelease];
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"type" isEqualTo:@"Boy"];
     [dynamicMapping setObjectMapping:girlMapping whenValueOfKeyPath:@"type" isEqualTo:@"Girl"];
     [provider setMapping:dynamicMapping forKeyPath:@"dynamic"];
-    RKObjectMapping* firstMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
-    RKObjectMapping* secondMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* firstMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* secondMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [provider addObjectMapping:firstMapping];
     [provider setMapping:secondMapping forKeyPath:@"second"];
     NSException* exception = nil;
@@ -1555,12 +1555,12 @@
 #pragma mark - RKDynamicObjectMapping
 
 - (void)testShouldMapASingleObjectDynamically {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Boy"]) {
             return boyMapping;
         } else if ([[mappableData valueForKey:@"type"] isEqualToString:@"Girl"]) {
@@ -1582,9 +1582,9 @@
 }
 
 - (void)testShouldMapASingleObjectDynamicallyWithADeclarativeMatcher {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"type" isEqualTo:@"Boy"];
@@ -1602,9 +1602,9 @@
 }
 
 - (void)testShouldACollectionOfObjectsDynamically {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"type" isEqualTo:@"Boy"];
@@ -1627,9 +1627,9 @@
 }
 
 - (void)testShouldMapARelationshipDynamically {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"type" isEqualTo:@"Boy"];
@@ -1655,12 +1655,12 @@
 }
 
 - (void)testShouldBeAbleToDeclineMappingAnObjectByReturningANilObjectMapping {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Boy"]) {
             return boyMapping;
         } else if ([[mappableData valueForKey:@"type"] isEqualToString:@"Girl"]) {
@@ -1685,12 +1685,12 @@
 }
 
 - (void)testShouldBeAbleToDeclineMappingObjectsInARelationshipByReturningANilObjectMapping {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Boy"]) {
             return boyMapping;
         } else if ([[mappableData valueForKey:@"type"] isEqualToString:@"Girl"]) {
@@ -1721,10 +1721,10 @@
 }
 
 - (void)testShouldMapATargetObjectWithADynamicMapping {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Boy"]) {
             return boyMapping;
         }
@@ -1745,10 +1745,10 @@
 }
 
 - (void)testShouldBeBackwardsCompatibleWithTheOldClassName {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
     RKObjectDynamicMapping* dynamicMapping = (RKObjectDynamicMapping *) [RKObjectDynamicMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Boy"]) {
             return boyMapping;
         }
@@ -1769,10 +1769,10 @@
 }
 
 - (void)testShouldFailWithAnErrorIfATargetObjectIsProvidedAndTheDynamicMappingReturnsNil {
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class]];
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class]];
     [boyMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         return nil;
     };
     
@@ -1789,10 +1789,10 @@
 }
 
 - (void)testShouldFailWithAnErrorIfATargetObjectIsProvidedAndTheDynamicMappingReturnsTheIncorrectType {
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class]];
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class]];
     [girlMapping mapAttributes:@"name", nil];
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id mappableData) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id mappableData) {
         if ([[mappableData valueForKey:@"type"] isEqualToString:@"Girl"]) {
             return girlMapping;
         }
@@ -1815,8 +1815,8 @@
 #pragma mark - Date and Time Formatting
 
 - (void)testShouldAutoConfigureDefaultDateFormatters {
-    [RKObjectMapping setDefaultDateFormatters:nil];
-    NSArray *dateFormatters = [RKObjectMapping defaultDateFormatters];
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
+    NSArray *dateFormatters = [PCOManagedObjectMapping defaultDateFormatters];
     assertThat(dateFormatters, hasCountOf(2));
     assertThat([[dateFormatters objectAtIndex:0] dateFormat], is(equalTo(@"yyyy-MM-dd'T'HH:mm:ss'Z'")));
     assertThat([[dateFormatters objectAtIndex:1] dateFormat], is(equalTo(@"MM/dd/yyyy")));
@@ -1828,34 +1828,34 @@
 - (void)testShouldLetYouSetTheDefaultDateFormatters {
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
     NSArray *dateFormatters = [NSArray arrayWithObject:dateFormatter];
-    [RKObjectMapping setDefaultDateFormatters:dateFormatters];
-    assertThat([RKObjectMapping defaultDateFormatters], is(equalTo(dateFormatters)));
+    [PCOManagedObjectMapping setDefaultDateFormatters:dateFormatters];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], is(equalTo(dateFormatters)));
 }
 
 - (void)testShouldLetYouAppendADateFormatterToTheList {
-    [RKObjectMapping setDefaultDateFormatters:nil];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(2));
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(2));
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
-    [RKObjectMapping addDefaultDateFormatter:dateFormatter];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(3));
+    [PCOManagedObjectMapping addDefaultDateFormatter:dateFormatter];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(3));
 }
 
 - (void)testShouldLetYouConfigureANewDateFormatterFromAStringAndATimeZone {
-    [RKObjectMapping setDefaultDateFormatters:nil];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(2));
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(2));
     NSTimeZone *EDTTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"EDT"];
-    [RKObjectMapping addDefaultDateFormatterForString:@"mm/dd/YYYY" inTimeZone:EDTTimeZone];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(3));
-    NSDateFormatter *dateFormatter = [[RKObjectMapping defaultDateFormatters] objectAtIndex:2];
+    [PCOManagedObjectMapping addDefaultDateFormatterForString:@"mm/dd/YYYY" inTimeZone:EDTTimeZone];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(3));
+    NSDateFormatter *dateFormatter = [[PCOManagedObjectMapping defaultDateFormatters] objectAtIndex:2];
     assertThat(dateFormatter.timeZone, is(equalTo(EDTTimeZone)));
 }
 
 - (void)testShouldConfigureANewDateFormatterInTheUTCTimeZoneIfPassedANilTimeZone {
-    [RKObjectMapping setDefaultDateFormatters:nil];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(2));
-    [RKObjectMapping addDefaultDateFormatterForString:@"mm/dd/YYYY" inTimeZone:nil];
-    assertThat([RKObjectMapping defaultDateFormatters], hasCountOf(3));
-    NSDateFormatter *dateFormatter = [[RKObjectMapping defaultDateFormatters] objectAtIndex:2];
+    [PCOManagedObjectMapping setDefaultDateFormatters:nil];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(2));
+    [PCOManagedObjectMapping addDefaultDateFormatterForString:@"mm/dd/YYYY" inTimeZone:nil];
+    assertThat([PCOManagedObjectMapping defaultDateFormatters], hasCountOf(3));
+    NSDateFormatter *dateFormatter = [[PCOManagedObjectMapping defaultDateFormatters] objectAtIndex:2];
     NSTimeZone *UTCTimeZone = [NSTimeZone timeZoneWithAbbreviation:@"UTC"];
     assertThat(dateFormatter.timeZone, is(equalTo(UTCTimeZone)));
 }
@@ -1864,9 +1864,9 @@
 // TODO: Move to RKObjectSerializerSpec
 
 - (void)testShouldSerializeHasOneRelatioshipsToJSON {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [userMapping mapAttributes:@"name", nil];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [addressMapping mapAttributes:@"city", @"state", nil];
     [userMapping hasOne:@"address" withMapping:addressMapping];
     
@@ -1876,7 +1876,7 @@
     address.state = @"North Carolina";
     user.address = address;
     
-    RKObjectMapping *serializationMapping = [userMapping inverseMapping];
+    PCOManagedObjectMapping *serializationMapping = [userMapping inverseMapping];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:user mapping:serializationMapping];
     NSError* error = nil;
     NSString *JSON = [serializer serializedObjectForMIMEType:RKMIMETypeJSON error:&error];
@@ -1885,9 +1885,9 @@
 }
 
 - (void)testShouldSerializeHasManyRelationshipsToJSON {
-    RKObjectMapping* userMapping = [RKObjectMapping mappingForClass:[RKExampleUser class]];
+    PCOManagedObjectMapping* userMapping = [PCOManagedObjectMapping mappingForClass:[RKExampleUser class]];
     [userMapping mapAttributes:@"name", nil];
-    RKObjectMapping* addressMapping = [RKObjectMapping mappingForClass:[RKSpecAddress class]];
+    PCOManagedObjectMapping* addressMapping = [PCOManagedObjectMapping mappingForClass:[RKSpecAddress class]];
     [addressMapping mapAttributes:@"city", @"state", nil];
     [userMapping hasMany:@"friends" withMapping:addressMapping];
     
@@ -1900,7 +1900,7 @@
     user.friends = [NSArray arrayWithObjects:address1, address2, nil];
     
     
-    RKObjectMapping *serializationMapping = [userMapping inverseMapping];
+    PCOManagedObjectMapping *serializationMapping = [userMapping inverseMapping];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:user mapping:serializationMapping];
     NSError* error = nil;
     NSString *JSON = [serializer serializedObjectForMIMEType:RKMIMETypeJSON error:&error];
@@ -1910,9 +1910,9 @@
 
 - (void)testShouldSerializeManagedHasManyRelationshipsToJSON {
     RKSpecNewManagedObjectStore();
-    RKObjectMapping* humanMapping = [RKObjectMapping mappingForClass:[RKHuman class]];
+    PCOManagedObjectMapping* humanMapping = [PCOManagedObjectMapping mappingForClass:[RKHuman class]];
     [humanMapping mapAttributes:@"name", nil];
-    RKObjectMapping* catMapping = [RKObjectMapping mappingForClass:[RKCat class]];
+    PCOManagedObjectMapping* catMapping = [PCOManagedObjectMapping mappingForClass:[RKCat class]];
     [catMapping mapAttributes:@"name", nil];
     [humanMapping hasMany:@"cats" withMapping:catMapping];
     
@@ -1924,7 +1924,7 @@
     roy.name = @"Roy";
     blake.cats = [NSSet setWithObjects:asia, roy, nil];    
     
-    RKObjectMapping *serializationMapping = [humanMapping inverseMapping];
+    PCOManagedObjectMapping *serializationMapping = [humanMapping inverseMapping];
     RKObjectSerializer* serializer = [RKObjectSerializer serializerWithObject:blake mapping:serializationMapping];
     NSError* error = nil;
     NSString *JSON = [serializer serializedObjectForMIMEType:RKMIMETypeJSON error:&error];

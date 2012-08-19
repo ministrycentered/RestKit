@@ -141,7 +141,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  */
 - (NSError*)save
 {
-	NSManagedObjectContext* moc = [self managedObjectContext];
+	NSManagedObjectContext* moc = _mainThreadContext;
 	NSError *error;
 	@try {
 		if (![moc save:&error]) {
@@ -199,7 +199,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	return nil;
 }
 
-- (NSManagedObjectContext*)newManagedObjectContext
+- (NSManagedObjectContext*)newManagedObjectContext;
 {
 	NSManagedObjectContext* managedObjectContext = [[NSManagedObjectContext alloc] init];
 	if (![[NSThread currentThread] isMainThread])
@@ -315,6 +315,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  *	for each NSThread.
  *
  */
+/*
 -(NSManagedObjectContext*)managedObjectContext
 {
 	if ([[NSThread currentThread] isMainThread])
@@ -328,17 +329,12 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 		backgroundThreadContext = [self newManagedObjectContext];
 		[threadDictionary setObject:backgroundThreadContext forKey:RKManagedObjectStoreThreadDictionaryContextKey];
 		[backgroundThreadContext release];
-		/*
-		[[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(mergeChanges:)
-													 name:NSManagedObjectContextDidSaveNotification
-												   object:backgroundThreadContext];
-		 */
+		
 	}
 	
 	return backgroundThreadContext;
 }
-
+*/
 - (NSManagedObjectContext *)mainThreadManagedObjectContext;
 {
 	return _mainThreadContext;
@@ -382,13 +378,13 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 #pragma mark Helpers
 
 - (NSManagedObject*)objectWithID:(NSManagedObjectID*)objectID {
-	return [self.managedObjectContext objectWithID:objectID];
+	return [_mainThreadContext objectWithID:objectID];
 }
 
 - (NSArray*)objectsWithIDs:(NSArray*)objectIDs {
 	NSMutableArray* objects = [[NSMutableArray alloc] init];
 	for (NSManagedObjectID* objectID in objectIDs) {
-		[objects addObject:[self.managedObjectContext objectWithID:objectID]];
+		[objects addObject:[_mainThreadContext objectWithID:objectID]];
 	}
 	NSArray* objectArray = [NSArray arrayWithArray:objects];
 	[objects release];
@@ -396,7 +392,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	return objectArray;
 }
 
-- (NSManagedObject*)findOrCreateInstanceOfEntity:(NSEntityDescription*)entity withPrimaryKeyAttribute:(NSString*)primaryKeyAttribute andValue:(id)primaryKeyValue {
+- (NSManagedObject*)findOrCreateInstanceOfEntity:(NSEntityDescription*)entity inManagedObjectContext:(NSManagedObjectContext *)context withPrimaryKeyAttribute:(NSString*)primaryKeyAttribute andValue:(id)primaryKeyValue {
     NSAssert(entity, @"Cannot instantiate managed object without a target class");
     NSAssert(primaryKeyAttribute, @"Cannot find existing managed object instance without a primary key attribute");
     NSAssert(primaryKeyValue, @"Cannot find existing managed object by primary key without a value");
@@ -419,7 +415,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
         NSFetchRequest* fetchRequest = [[[NSFetchRequest alloc] init] autorelease];
         [fetchRequest setEntity:entity];
         [fetchRequest setReturnsObjectsAsFaults:NO];
-        objects = [NSManagedObject executeFetchRequest:fetchRequest];
+        objects = [NSManagedObject executeFetchRequest:fetchRequest inContext:context];
         RKLogInfo(@"Caching all %lu %@ objects to thread local storage", (unsigned long) [objects count], entity.name);
         NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
         BOOL coerceToString = [[[objects lastObject] valueForKey:primaryKeyAttribute] respondsToSelector:@selector(stringValue)];
@@ -440,7 +436,7 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
     object = [dictionary objectForKey:lookupValue];
     
     if (object == nil) {
-        object = [[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:self.managedObjectContext] autorelease];
+        object = [[[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:context] autorelease];
         [dictionary setObject:object forKey:lookupValue];
     }
         

@@ -30,15 +30,15 @@
 
 - (void)testShouldPickTheAppropriateMappingBasedOnAnAttributeValue {
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class] block:^(RKObjectMapping* mapping) {
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class] block:^(PCOManagedObjectMapping* mapping) {
         [mapping mapAttributes:@"name", nil];
     }];
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class] block:^(RKObjectMapping* mapping) {
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class] block:^(PCOManagedObjectMapping* mapping) {
         [mapping mapAttributes:@"name", nil];
     }];
     [dynamicMapping setObjectMapping:girlMapping whenValueOfKeyPath:@"type" isEqualTo:@"Girl"];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"type" isEqualTo:@"Boy"];
-    RKObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
+    PCOManagedObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
     assertThat(mapping, is(notNilValue()));
     assertThat(NSStringFromClass(mapping.objectClass), is(equalTo(@"Girl")));
     mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"boy.json")];
@@ -48,15 +48,15 @@
 
 - (void)testShouldMatchOnAnNSNumberAttributeValue {
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    RKObjectMapping* girlMapping = [RKObjectMapping mappingForClass:[Girl class] block:^(RKObjectMapping* mapping) {
+    PCOManagedObjectMapping* girlMapping = [PCOManagedObjectMapping mappingForClass:[Girl class] block:^(PCOManagedObjectMapping* mapping) {
         [mapping mapAttributes:@"name", nil];
     }];
-    RKObjectMapping* boyMapping = [RKObjectMapping mappingForClass:[Boy class] block:^(RKObjectMapping* mapping) {
+    PCOManagedObjectMapping* boyMapping = [PCOManagedObjectMapping mappingForClass:[Boy class] block:^(PCOManagedObjectMapping* mapping) {
         [mapping mapAttributes:@"name", nil];
     }];
     [dynamicMapping setObjectMapping:girlMapping whenValueOfKeyPath:@"numeric_type" isEqualTo:[NSNumber numberWithInt:0]];
     [dynamicMapping setObjectMapping:boyMapping whenValueOfKeyPath:@"numeric_type" isEqualTo:[NSNumber numberWithInt:1]];
-    RKObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
+    PCOManagedObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
     assertThat(mapping, is(notNilValue()));
     assertThat(NSStringFromClass(mapping.objectClass), is(equalTo(@"Girl")));
     mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"boy.json")];
@@ -67,7 +67,7 @@
 - (void)testShouldPickTheAppropriateMappingBasedOnDelegateCallback {
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
     dynamicMapping.delegate = self;
-    RKObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
+    PCOManagedObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
     assertThat(mapping, is(notNilValue()));
     assertThat(NSStringFromClass(mapping.objectClass), is(equalTo(@"Girl")));
     mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"boy.json")];
@@ -77,20 +77,20 @@
 
 - (void)testShouldPickTheAppropriateMappingBasedOnBlockDelegateCallback {
     RKDynamicObjectMapping* dynamicMapping = [RKDynamicObjectMapping dynamicMapping];
-    dynamicMapping.objectMappingForDataBlock = ^ RKObjectMapping* (id data) {
+    dynamicMapping.objectMappingForDataBlock = ^ PCOManagedObjectMapping* (id data) {
         if ([[data valueForKey:@"type"] isEqualToString:@"Girl"]) {
-            return [RKObjectMapping mappingForClass:[Girl class] block:^(RKObjectMapping* mapping) {
+            return [PCOManagedObjectMapping mappingForClass:[Girl class] block:^(PCOManagedObjectMapping* mapping) {
                 [mapping mapAttributes:@"name", nil];
             }];
         } else if ([[data valueForKey:@"type"] isEqualToString:@"Boy"]) {
-            return [RKObjectMapping mappingForClass:[Boy class] block:^(RKObjectMapping* mapping) {
+            return [PCOManagedObjectMapping mappingForClass:[Boy class] block:^(PCOManagedObjectMapping* mapping) {
                 [mapping mapAttributes:@"name", nil];
             }];
         }
         
         return nil;
     };
-    RKObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
+    PCOManagedObjectMapping* mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"girl.json")];
     assertThat(mapping, is(notNilValue()));
     assertThat(NSStringFromClass(mapping.objectClass), is(equalTo(@"Girl")));
     mapping = [dynamicMapping objectMappingForDictionary:RKSpecParseFixture(@"boy.json")];
@@ -114,13 +114,13 @@
 
 #pragma mark - RKDynamicObjectMappingDelegate
 
-- (RKObjectMapping*)objectMappingForData:(id)data {
+- (PCOManagedObjectMapping*)objectMappingForData:(id)data {
     if ([[data valueForKey:@"type"] isEqualToString:@"Girl"]) {
-        return [RKObjectMapping mappingForClass:[Girl class] block:^(RKObjectMapping* mapping) {
+        return [PCOManagedObjectMapping mappingForClass:[Girl class] block:^(PCOManagedObjectMapping* mapping) {
             [mapping mapAttributes:@"name", nil];
         }];
     } else if ([[data valueForKey:@"type"] isEqualToString:@"Boy"]) {
-        return [RKObjectMapping mappingForClass:[Boy class] block:^(RKObjectMapping* mapping) {
+        return [PCOManagedObjectMapping mappingForClass:[Boy class] block:^(PCOManagedObjectMapping* mapping) {
             [mapping mapAttributes:@"name", nil];
         }];
     }

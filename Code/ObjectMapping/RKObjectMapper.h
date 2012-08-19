@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RKObjectMapping.h"
-#import "RKObjectMappingOperation.h"
+#import "PCOManagedObjectMapping.h"
+#import "PCOManagedObjectMappingOperation.h"
 #import "RKObjectMappingResult.h"
 #import "RKObjectMappingProvider.h"
 #import "RKMappingOperationQueue.h"
@@ -62,8 +62,10 @@
 @property (nonatomic, assign) id<RKObjectMapperDelegate> delegate;
 @property (nonatomic, readonly) NSArray* errors;
 
-+ (id)mapperWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider;
-- (id)initWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider;
+@property (nonatomic, retain) NSManagedObjectContext * backgroundManagedObjectContext;
+
++ (id)mapperWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider inContext:(NSManagedObjectContext *)context;
+- (id)initWithObject:(id)object mappingProvider:(RKObjectMappingProvider*)mappingProvider inContext:(NSManagedObjectContext *)context;
 
 // Primary entry point for the mapper. Examines the type of object and processes it appropriately...
 - (RKObjectMappingResult*)performMapping;
