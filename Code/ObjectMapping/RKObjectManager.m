@@ -136,14 +136,14 @@ static RKObjectManager* sharedManager = nil;
 
 /////////////////////////////////////////////////////////////
 #pragma mark - Object Collection Loaders
-
+/*
 - (PCOManagedObjectLoader*)objectLoaderWithResourcePath:(NSString*)resourcePath delegate:(id<PCOManagedObjectLoaderDelegate>)delegate {
     PCOManagedObjectLoader* objectLoader = nil;
     objectLoader = [PCOManagedObjectLoader loaderWithResourcePath:resourcePath objectManager:self delegate:delegate];
     
 	return objectLoader;
 }
-
+*/
 - (PCOManagedObjectLoader*)loadObjectsAtResourcePath:(NSString*)resourcePath delegate:(id<PCOManagedObjectLoaderDelegate>)delegate {
 	PCOManagedObjectLoader* loader = [self objectLoaderWithResourcePath:resourcePath delegate:delegate];
 	loader.method = RKRequestMethodGET;

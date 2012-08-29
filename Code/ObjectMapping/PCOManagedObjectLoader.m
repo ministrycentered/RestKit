@@ -32,12 +32,41 @@
     return [[[self alloc] initWithResourcePath:resourcePath objectManager:objectManager delegate:delegate] autorelease];
 }
 
+
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock;
+{
+	return [[[self alloc] initWithResourcePath:resourcePath objectManager:objectManager failureBlock:nil completionBlock:completionBlock unexpectedResponseBlock:nil mappingBlock:nil] autorelease];
+}
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock failureBlock:(PCOManagedObjectLoaderFailedBlock)failureBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedResponseBlock;
+{
+	return [[[self alloc] initWithResourcePath:resourcePath objectManager:objectManager failureBlock:failureBlock completionBlock:completionBlock unexpectedResponseBlock:unexpectedResponseBlock mappingBlock:nil] autorelease];
+}
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock failureBlock:(PCOManagedObjectLoaderFailedBlock)failureBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedResponseBlock mappingBlock:(PCOManagedObjectLoaderMappingBlock)mappingBlock;
+{
+	return [[[self alloc] initWithResourcePath:resourcePath objectManager:objectManager failureBlock:failureBlock completionBlock:completionBlock unexpectedResponseBlock:unexpectedResponseBlock mappingBlock:mappingBlock] autorelease];
+}
+
+
+
 - (id)initWithResourcePath:(NSString*)resourcePath objectManager:(RKObjectManager*)objectManager delegate:(id<PCOManagedObjectLoaderDelegate>)delegate {
 	if ((self = [super initWithURL:[objectManager.client URLForResourcePath:resourcePath] delegate:delegate])) {
         _objectManager = objectManager;
         [self.objectManager.client setupRequest:self];
 	}
 
+	return self;
+}
+
+- (id)initWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager failureBlock:(PCOManagedObjectLoaderFailedBlock)failBlock completionBlock:(PCOManagedObjectLoaderCompletedBlock)completedBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedBlock mappingBlock:(PCOManagedObjectLoaderMappingBlock)mappingBlock;
+{
+	if ((self = [super initWithURL:[objectManager.client URLForResourcePath:resourcePath] delegate:nil])) {
+        _objectManager = objectManager;
+        [self.objectManager.client setupRequest:self];
+	}
+	
 	return self;
 }
 
@@ -75,19 +104,11 @@
     NSAssert([NSThread isMainThread], @"RKObjectLoaderDelegate callbacks must occur on the main thread");
 
 	RKObjectMappingResult* result = [RKObjectMappingResult mappingResultWithDictionary:resultDictionary];
-
-    if ([self.delegate respondsToSelector:@selector(objectLoader:didLoadObjectDictionary:)]) {
-        [(NSObject<PCOManagedObjectLoaderDelegate>*)self.delegate objectLoader:self didLoadObjectDictionary:[result asDictionary]];
-    }
-
+	
     if ([self.delegate respondsToSelector:@selector(objectLoader:didLoadObjects:)]) {
         [(NSObject<PCOManagedObjectLoaderDelegate>*)self.delegate objectLoader:self didLoadObjects:[result asCollection]];
     }
-
-    if ([self.delegate respondsToSelector:@selector(objectLoader:didLoadObject:)]) {
-        [(NSObject<PCOManagedObjectLoaderDelegate>*)self.delegate objectLoader:self didLoadObject:[result asObject]];
-    }
-
+	
 	RKLogTrace(@"Object loader finished");
 
 	[self finalizeLoad:YES error:nil];
@@ -225,7 +246,12 @@
             [_delegate request:self didFailLoadWithError:error];
         }
 
-        [(NSObject<PCOManagedObjectLoaderDelegate>*)_delegate objectLoader:self didFailWithError:error];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			
+			[(NSObject<PCOManagedObjectLoaderDelegate>*)_delegate objectLoader:self didFailWithError:error];
+			
+		});
+        
 
         [self finalizeLoad:NO error:error];
 

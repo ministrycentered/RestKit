@@ -22,7 +22,7 @@
 /**
  * Sent when an object loaded failed to load the collection due to an error
  */
-- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didFailWithError:(NSError*)error;
+//- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didFailWithError:(NSError*)error;
 
 @optional
 
@@ -31,27 +31,13 @@
  and loaded a collection of objects. All objects mapped from the remote payload will be returned
  as a single array.
  */
-- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didLoadObjects:(NSArray*)objects;
+//- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didLoadObjects:(NSArray*)objects;
 
-/**
- When implemented, sent to the delegate when the object loader has completed succesfully.
- If the load resulted in a collection of objects being mapped, only the first object
- in the collection will be sent with this delegate method. This method simplifies things
- when you know you are working with a single object reference.
- */
-- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didLoadObject:(id)object;
-
-/**
- When implemented, sent to the delegate when an object loader has completed successfully. The
- dictionary will be expressed as pairs of keyPaths and objects mapped from the payload. This
- method is useful when you have multiple root objects and want to differentiate them by keyPath.
- */
-- (void)objectLoader:(PCOManagedObjectLoader*)objectLoader didLoadObjectDictionary:(NSDictionary*)dictionary;
 
 /**
  Invoked when the object loader has finished loading
  */
-- (void)objectLoaderDidFinishLoading:(PCOManagedObjectLoader*)objectLoader;
+//- (void)objectLoaderDidFinishLoading:(PCOManagedObjectLoader*)objectLoader;
 
 /**
  Sent when an object loader encounters a response status code or MIME Type that RestKit does not know how to handle.
@@ -76,7 +62,7 @@
 
  @optional
  */
-- (void)objectLoaderDidLoadUnexpectedResponse:(PCOManagedObjectLoader*)objectLoader;
+//- (void)objectLoaderDidLoadUnexpectedResponse:(PCOManagedObjectLoader*)objectLoader;
 
 /**
  Invoked just after parsing has completed, but before object mapping begins. This can be helpful
@@ -87,9 +73,18 @@
  Note that the mappable data is a pointer to a pointer to allow you to replace the mappable data
  with a new object to be mapped. You must dereference it to access the value.
  */
-- (void)objectLoader:(PCOManagedObjectLoader*)loader willMapData:(inout id *)mappableData;
+//- (void)objectLoader:(PCOManagedObjectLoader*)loader willMapData:(inout id *)mappableData;
 
 @end
+
+
+
+// loader response blocks
+
+typedef void (^PCOManagedObjectLoaderFailedBlock)(PCOManagedObjectLoader * loader, NSError * error);
+typedef void (^PCOManagedObjectLoaderCompletedBlock)(PCOManagedObjectLoader * loader, NSArray * objects);
+typedef void (^PCOManagedObjectLoaderUnexpectedResponseBlock)(PCOManagedObjectLoader * loader);
+typedef id (^PCOManagedObjectLoaderMappingBlock)(PCOManagedObjectLoader * loader, id mappableData);
 
 
 
@@ -186,12 +181,26 @@
  * specifies the remote location to load data from, while the object manager is responsible for supplying
  * mapping and persistence details.
  */
-+ (id)loaderWithResourcePath:(NSString*)resourcePath objectManager:(RKObjectManager*)objectManager delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
+//+ (id)loaderWithResourcePath:(NSString*)resourcePath objectManager:(RKObjectManager*)objectManager delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock;
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock failureBlock:(PCOManagedObjectLoaderFailedBlock)failureBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedResponseBlock;
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock failureBlock:(PCOManagedObjectLoaderFailedBlock)failureBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedResponseBlock mappingBlock:(PCOManagedObjectLoaderMappingBlock)mappingBlock;
+
++ (id)loaderWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager completionBlock:(PCOManagedObjectLoaderCompletedBlock)completionBlock failureBlock:(PCOManagedObjectLoaderFailedBlock)failureBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedResponseBlock mappingBlock:(PCOManagedObjectLoaderMappingBlock)mappingBlock returnOnMainThread:(BOOL)blockOnMainThread;
+
+
 
 /**
  * Initialize a new object loader with an object manager, a request, and a delegate
  */
-- (id)initWithResourcePath:(NSString*)resourcePath objectManager:(RKObjectManager*)objectManager delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
+//- (id)initWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager delegate:(id<PCOManagedObjectLoaderDelegate>)delegate;
+
+- (id)initWithResourcePath:(NSString *)resourcePath objectManager:(RKObjectManager *)objectManager failureBlock:(PCOManagedObjectLoaderFailedBlock)failBlock completionBlock:(PCOManagedObjectLoaderCompletedBlock)completedBlock unexpectedResponseBlock:(PCOManagedObjectLoaderUnexpectedResponseBlock)unexpectedBlock mappingBlock:(PCOManagedObjectLoaderMappingBlock)mappingBlock;
+
+
 
 /**
  * Handle an error in the response preventing it from being mapped, called from -isResponseMappable
