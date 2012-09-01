@@ -218,10 +218,13 @@
 
 - (void)addHeadersToRequest {
 	NSString *header = nil;
-	for (header in _additionalHTTPHeaders) {
+
+	NSDictionary * headersCopy = [[_additionalHTTPHeaders copy] autorelease];
+
+	for (header in headersCopy) {
 		[_URLRequest setValue:[_additionalHTTPHeaders valueForKey:header] forHTTPHeaderField:header];
 	}
-
+	
 	[_URLRequest setCachePolicy:NSURLRequestReloadIgnoringCacheData];
 	[_URLRequest setHTTPShouldHandleCookies:NO];
 	
