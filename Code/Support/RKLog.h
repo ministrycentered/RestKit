@@ -60,6 +60,23 @@
  The message will only be logged if the log level for the active component is equal to or higher
  than the level the message was logged at (in this case, Info).
  */
+#ifndef RK_DISABLE_LOGS
+    #define RK_DISABLE_LOGS 1
+#endif
+
+static inline void _RK_DO_NOTHING(BOOL nothing, ...) {}
+
+#if RK_DISABLE_LOGS
+
+    #define RKLogCritical(...) _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+    #define RKLogError(...)    _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+    #define RKLogWarning(...)  _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+    #define RKLogInfo(...)     _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+    #define RKLogDebug(...)    _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+    #define RKLogTrace(...)    _RK_DO_NOTHING(YES, ##__VA_ARGS__)
+
+#else
+
 #define RKLogCritical(...)                                                              \
 lcl_log(RKLogComponent, lcl_vCritical, @"" __VA_ARGS__)
 
@@ -77,6 +94,8 @@ lcl_log(RKLogComponent, lcl_vDebug, @"" __VA_ARGS__)
 
 #define RKLogTrace(...)                                                                 \
 lcl_log(RKLogComponent, lcl_vTrace, @"" __VA_ARGS__)
+
+#endif
 
 /**
  Log Level Aliases
