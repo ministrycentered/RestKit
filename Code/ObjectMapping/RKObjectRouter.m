@@ -41,12 +41,12 @@
     NSString* className = NSStringFromClass(theClass);
     if (nil == [_routes objectForKey:theClass]) {
         NSMutableDictionary* dictionary = [NSMutableDictionary dictionary];
-        [_routes setObject:dictionary forKey:theClass];
+        [_routes setObject:dictionary forKey:((id<NSCopying>)theClass)];
     }
 
     NSMutableDictionary* classRoutes = [_routes objectForKey:theClass];
     if ([classRoutes objectForKey:methodName]) {
-    [NSException raise:nil format:@"A route has already been registered for class '%@' and HTTP method '%@'", className, methodName];
+        [NSException raise:nil format:@"A route has already been registered for class '%@' and HTTP method '%@'", className, methodName];
     }
 
     NSMutableDictionary *routeEntry = [NSMutableDictionary dictionaryWithObjectsAndKeys:

@@ -38,7 +38,7 @@
                     if ([val length] == 0) {
                         val = [NSMutableDictionary dictionary];
                         attrs = [NSMutableDictionary dictionary];
-                        oldVal = [attrs valueForKey:nodeName];
+//                        oldVal = [attrs valueForKey:nodeName];
                         NSMutableDictionary* elem = [NSMutableDictionary dictionaryWithObject:val forKey:nodeName];
                         [nodes addObject:elem];
                     } else {
