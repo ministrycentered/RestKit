@@ -506,6 +506,11 @@ static NSInteger networkActivityCount;
     }
     BOOL active = (self.networkActivityCount > 0);
     self.networkActivityIndicatorVisible = active;
+    if (active) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"RKNetworkActivityActive" object:nil];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"RKNetworkActivityInactive" object:nil];
+    }
 }
 
 - (void)pushNetworkActivity {
