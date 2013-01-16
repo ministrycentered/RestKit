@@ -434,7 +434,6 @@ static const NSTimeInterval kFlushDelay = 0.3;
     
     RKRequest* request = (RKRequest*)notification.object;
     NSString *logStr = [request.URL absoluteString];
-    printf("RestKit got URL: %s\n",[logStr cStringUsingEncoding:NSUTF8StringEncoding]);
     
     
     NSDictionary* userInfo = [notification userInfo];
