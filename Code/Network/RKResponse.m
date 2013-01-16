@@ -189,7 +189,7 @@ extern NSString* cacheURLKey;
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response {	
     RKLogDebug(@"NSHTTPURLResponse Status Code: %ld", (long) [response statusCode]);
     RKLogDebug(@"Headers: %@", [response allHeaderFields]);
-    printf("RestKit: %s\n",[[NSString stringWithFormat:@"Got (%i) %@",[response statusCode], [[connection currentRequest] URL]]
+    printf("RestKit: %s\n",[[NSString stringWithFormat:@"(%i) [%@] %@",[response statusCode], [[connection currentRequest] HTTPMethod], [[connection currentRequest] URL]]
                             cStringUsingEncoding:NSUTF8StringEncoding]);
 	_httpURLResponse = [response retain];
     [_request invalidateTimeoutTimer];

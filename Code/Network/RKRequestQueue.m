@@ -433,8 +433,6 @@ static const NSTimeInterval kFlushDelay = 0.3;
     NSAssert([notification.object isKindOfClass:[RKRequest class]], @"Notification expected to contain an RKRequest, got a %@", NSStringFromClass([notification.object class]));
     
     RKRequest* request = (RKRequest*)notification.object;
-    NSString *logStr = [request.URL absoluteString];
-    
     
     NSDictionary* userInfo = [notification userInfo];
     if ([self containsRequest:request]) {
