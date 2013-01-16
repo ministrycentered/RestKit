@@ -599,7 +599,6 @@
     
     RKLogInfo(@"Status Code: %ld", (long) [response statusCode]);
     RKLogDebug(@"Body: %@", [response bodyAsString]);
-    NSLog(@"\n***************************************\nBODY:\n%@\n***************************************\n",response.bodyAsString);
 
 	RKResponse* finalResponse = response;
 
