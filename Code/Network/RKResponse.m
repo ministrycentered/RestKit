@@ -28,6 +28,10 @@
 #undef RKLogComponent
 #define RKLogComponent lcl_cRestKitNetwork
 
+#ifndef RK_LOG_REQUESTS
+    #define RK_LOG_REQUESTS 0
+#endif
+
 extern NSString* cacheResponseCodeKey;
 extern NSString* cacheMIMETypeKey;
 extern NSString* cacheURLKey;
@@ -189,8 +193,10 @@ extern NSString* cacheURLKey;
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response {	
     RKLogDebug(@"NSHTTPURLResponse Status Code: %ld", (long) [response statusCode]);
     RKLogDebug(@"Headers: %@", [response allHeaderFields]);
+#if RK_LOG_REQUESTS
     printf("RestKit: %s\n",[[NSString stringWithFormat:@"(%i) [%@] %@",[response statusCode], [[connection currentRequest] HTTPMethod], [[connection currentRequest] URL]]
                             cStringUsingEncoding:NSUTF8StringEncoding]);
+#endif
 	_httpURLResponse = [response retain];
     [_request invalidateTimeoutTimer];
 }
