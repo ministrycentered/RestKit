@@ -104,12 +104,29 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 - (void)clearThreadLocalStorage {
     // Clear out our Thread local information
 	NSMutableDictionary* threadDictionary = [[NSThread currentThread] threadDictionary];
+
+	NSMutableArray * contextsToDump = [NSMutableArray array];
+
+	for (NSDictionary * dict in collectedThreadsAndContexts)
+	{
+		if ([dict objectForKey:@"context"] == [threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryContextKey])
+		{
+			[contextsToDump addObject:dict];
+		}
+	}
+
+	[collectedThreadsAndContexts removeObjectsInArray:contextsToDump];
+	[contextsToDump removeAllObjects];
+
+
     if ([threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryContextKey]) {
         [threadDictionary removeObjectForKey:RKManagedObjectStoreThreadDictionaryContextKey];
     }
     if ([threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryEntityCacheKey]) {
         [threadDictionary removeObjectForKey:RKManagedObjectStoreThreadDictionaryEntityCacheKey];
     }
+
+	
 }
 
 - (void)dealloc {
@@ -299,13 +316,21 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  *	for each NSThread.
  *
  */
--(NSManagedObjectContext*)managedObjectContext {
+-(NSManagedObjectContext*)managedObjectContext
+{
+	if (!collectedThreadsAndContexts)
+	{
+		collectedThreadsAndContexts = [[NSMutableArray alloc] init];
+	}
+	
 	NSMutableDictionary* threadDictionary = [[NSThread currentThread] threadDictionary];
 	NSManagedObjectContext* backgroundThreadContext = [threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryContextKey];
 	if (!backgroundThreadContext) {
 		backgroundThreadContext = [self newManagedObjectContext];
 		[threadDictionary setObject:backgroundThreadContext forKey:RKManagedObjectStoreThreadDictionaryContextKey];
 		[backgroundThreadContext release];
+
+		[collectedThreadsAndContexts addObject:@{@"thread": [NSThread currentThread], @"context": backgroundThreadContext}];
 
 		[[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(mergeChanges:)
@@ -315,16 +340,33 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 	return backgroundThreadContext;
 }
 
-- (void)mergeChangesOnMainThreadWithNotification:(NSNotification*)notification {
-	assert([NSThread isMainThread]);
-	[self.managedObjectContext performSelectorOnMainThread:@selector(mergeChangesFromContextDidSaveNotification:)
+- (void)mergeChangesOnCurrentThreadWithNotification:(NSNotification*)notification {
+	//assert([NSThread isMainThread]);
+
+	NSMutableDictionary* threadDictionary = [[NSThread currentThread] threadDictionary];
+	NSManagedObjectContext* backgroundThreadContext = [threadDictionary objectForKey:RKManagedObjectStoreThreadDictionaryContextKey];
+
+	[backgroundThreadContext performSelector:@selector(mergeChangesFromContextDidSaveNotification:)
+									onThread:[NSThread currentThread]
 												withObject:notification
 											 waitUntilDone:YES];
+
+	NSLog(@"merged. thread is %@", [[NSThread currentThread] name]);
 }
 
 - (void)mergeChanges:(NSNotification *)notification {
 	// Merge changes into the main context on the main thread
-	[self performSelectorOnMainThread:@selector(mergeChangesOnMainThreadWithNotification:) withObject:notification waitUntilDone:YES];
+	//[self performSelectorOnMainThread:@selector(mergeChangesOnMainThreadWithNotification:) withObject:notification waitUntilDone:YES];
+
+	NSLog(@"merging changes on all threads...");
+
+	for (NSDictionary * dict in collectedThreadsAndContexts)
+	{
+		if ([dict objectForKey:@"context"] != [notification object])
+		{
+			[self performSelector:@selector(mergeChangesOnCurrentThreadWithNotification:) onThread:[dict objectForKey:@"thread"] withObject:notification waitUntilDone:NO];
+		}
+	}
 }
 
 - (void)objectsDidChange:(NSNotification*)notification {
