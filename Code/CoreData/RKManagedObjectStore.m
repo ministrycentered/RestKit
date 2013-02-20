@@ -154,6 +154,12 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
  */
 - (NSError*)save {
 	NSManagedObjectContext* moc = [self managedObjectContext];
+
+	if ([[[moc persistentStoreCoordinator] persistentStores] count] == 0)
+	{
+		return nil; // no persistent stores. bail to avoid exception.
+	}
+
 	NSError *error;
 	@try {
 		if (![moc save:&error]) {
@@ -197,6 +203,9 @@ static NSString* const RKManagedObjectStoreThreadDictionaryEntityCacheKey = @"RK
 		}
 	}
 	@catch (NSException* e) {
+
+		NSLog(@"exception while saving: %@", [e description]);
+
 		if (self.delegate != nil && [self.delegate respondsToSelector:@selector(managedObjectStore:didFailToSaveContext:error:exception:)]) {
 			[self.delegate managedObjectStore:self didFailToSaveContext:moc error:nil exception:e];
 		}
